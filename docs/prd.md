@@ -54,7 +54,7 @@ Sem administrador neste PRD — administração vai para Fora de Escopo (US10 `C
 
 Todas nascem `Draft` — **só o aluno promove a `Ready`**.
 
-### US01 — motorista cadastra oferta · `Must Have` · `M` · Status: `Draft`
+### US01 — motorista cadastra oferta · `Must Have` · `M` · Status: `Ready`
 
 **Como** motorista da comunidade UTFPR, **eu quero** cadastrar uma oferta de carona voluntária especificando itinerário, horário e vagas disponíveis **para que** eu possa disponibilizar assentos livres e organizar os passageiros de forma centralizada e sem custos.
 
@@ -70,7 +70,7 @@ Todas nascem `Draft` — **só o aluno promove a `Ready`**.
 
 **Regras relacionadas:** RN01, RN02, RN03, RN10, RN11
 
-### US02 — busca e filtros · `Must Have` · `L` · Status: `Draft`
+### US02 — busca e filtros · `Must Have` · `L` · Status: `Ready`
 
 **Como** passageiro da comunidade UTFPR, **eu quero** filtrar as ofertas navegando por Ida e Volta, selecionando um dos 23 bairros para ver os 3 pontos fixos e horários, **para que** eu possa localizar motoristas da minha região e escolher pelo horário de aula.
 
@@ -81,7 +81,7 @@ Todas nascem `Draft` — **só o aluno promove a `Ready`**.
 
 **Regras relacionadas:** RN01, RN02, RN04
 
-### US03 — solicitação · `Must Have` · `M` · Status: `Draft`
+### US03 — solicitação · `Must Have` · `M` · Status: `Ready`
 
 **Como** passageiro da comunidade UTFPR, **eu quero** que o pedido de ida e volta vire uma única solicitação quando o ponto for o mesmo, ou separadas quando distintos, **para que** eu possa reservar o completo com um clique ou flexibilizar trechos avulsos.
 
@@ -95,7 +95,7 @@ Todas nascem `Draft` — **só o aluno promove a `Ready`**.
 
 **Regras relacionadas:** RN05, RN06
 
-### US04 — gestão de aceites · `Must Have` · `S` · Status: `Draft`
+### US04 — gestão de aceites · `Must Have` · `S` · Status: `Ready`
 
 **Como** motorista da comunidade UTFPR, **eu quero** ver e gerenciar solicitações pendentes, aceitando ou recusando cada pedido, **para que** eu possa controlar a ocupação e selecionar confirmados de forma simples e organizada.
 
@@ -110,7 +110,7 @@ Todas nascem `Draft` — **só o aluno promove a `Ready`**.
 
 **Regras relacionadas:** RN06, RN12
 
-### US05 — minhas caronas · `Must Have` · `S` · Status: `Draft`
+### US05 — minhas caronas · `Must Have` · `S` · Status: `Ready`
 
 **Como** usuário da comunidade UTFPR (motorista ou passageiro), **eu quero** ver em Minhas Caronas as confirmadas com detalhes e contato da outra parte, **para que** eu possa acompanhar agendamentos, conferir locais/horários e falar antes do embarque.
 
@@ -125,7 +125,7 @@ Todas nascem `Draft` — **só o aluno promove a `Ready`**.
 
 **Regras relacionadas:** RN07, RN13
 
-### US06 — sino · `Must Have` · `M` · Status: `Draft`
+### US06 — sino · `Must Have` · `M` · Status: `Ready`
 
 **Como** usuário da comunidade UTFPR (motorista ou passageiro), **eu quero** uma central interna (sino no topo), **para que** eu possa ver em tempo real novas solicitações e respostas sem navegar manualmente.
 
@@ -140,7 +140,7 @@ Todas nascem `Draft` — **só o aluno promove a `Ready`**.
 
 **Regras relacionadas:** RN09
 
-### US07 — cancelamento até 30min · `Should Have` · `M` · Status: `Draft`
+### US07 — cancelamento até 30min · `Should Have` · `M` · Status: `Ready`
 
 **Como** usuário da comunidade UTFPR (motorista ou passageiro), **eu quero** cancelar confirmada até 30min antes da partida, **para que** eu possa sinalizar imprevistos de forma justa e automática, reabrindo vaga ou buscando alternativa a tempo.
 
@@ -171,7 +171,7 @@ Moderação para gerenciar locais fixos e ver métricas. Entra só se sobrar tem
 
 Contador de viagens voluntárias e estimativa de impacto no campus. Cabeçalho registrado — detalhar se entrar.
 
-### US12 — autenticação via portal UTFApps · `Must Have` · `S` · Status: `Draft`
+### US12 — autenticação via portal UTFApps · `Must Have` · `S` · Status: `Ready`
 
 **Como** usuário da comunidade UTFPR (aluno ou servidor), **eu quero** entrar com minhas credenciais do portal UTFApps, **para que** meu vínculo seja verificado sem criar cadastro manual.
 
