@@ -1,267 +1,272 @@
-# 🛠️ Architecture / SSD
+# 🏗️ Architecture Decision Record (ADR) — Caronas UTFPR
 
 **Projeto:** Caronas UTFPR
 **Versão:** 1.0.0 · definido via `/utf-architecture`
-**Última atualização:** 2026-10-10
+**Última atualização:** 2026-10-11
 
-> 🤖 **O `prd.md` responde _o quê_ o produto faz. Este responde _onde as coisas
-> moram e como se chamam_.** Detalhe de tela — rota, componente, contrato —
-> **não** se decide aqui: isso é trabalho da spec de cada história.
-> (No texto oficial da disciplina este documento é o `ssd.md` — ID31.)
->
-> ✍️ **Não preencha na mão:** rode `/utf-architecture` (depois do `/utf-prd`).
-> A entrevista decide com você cada seção e garante o que o `/utf-setup` exige:
-> **framework do frontend, o BaaS, a estrutura do projeto e como rodar os
-> testes.**
+> 🤖 **Este documento é a régua técnica do semestre.** O `/utf-setup`, os implementadores e os revisores consultam aqui. Dependência que não estiver aqui não entra no projeto.
 
 ---
 
-## 🤖 1. Fontes de Contexto para a IA
+## 1. Frontend — Angular 20+ (Standalone)
 
-> Onde a IDE agêntica busca a verdade. **Isto é o índice; a configuração mora
-> nos arquivos** — documento não configura ferramenta.
+**Linha de versão:** `Angular 20+` (número exato no `package.json`)
 
-| Fonte | Onde configurar | Serve para |
-| :---- | :-------------- | :--------- |
-| Constituição da IA | `.agents/rules/utf-rules.md` (via `CLAUDE.md`) | Regras inegociáveis: fases do SDD, 2 rodadas, revisores distintos, Gitflow |
-| Fluxos da IA | `.agents/workflows/` | PRD, backlog, design, architecture, setup, ciclo por Issue, ciclo por tarefa, tutor |
-| Agentes (subagentes) | `.agents/agents/` (cascas em `.claude/`, `.cursor/`, `.opencode/`) | Implementador, revisores, auditor final e tutor |
-| Ficha da disciplina | `docs/checklist.md` | Regras do projeto, IDs e entregas |
-| Protótipo (Stitch/Figma) | https://stitch.withgoogle.com/projects/18188893525436397761 / https://www.figma.com/design/sGZhxiiZS7xKHRMMemq12L/Munte-App?node-id=1-212&t=UaY3ydqlr5EiowMd-1 | Telas, jornadas e hierarquia visual (ID1) |
-| MCPs da IDE | Context7, Supabase, Figma | Contexto exato do projeto para o agente (ID32) |
+### Padrões obrigatórios
 
----
-
-## 📦 2. Stack Tecnológica
-
-> Definição **estrita**: nenhuma dependência entra sem aparecer aqui. Esta
-> seção e o `package.json` contam a mesma história, ou o projeto já se perdeu.
-> O que a ficha fixa entra como está; o que ela deixa livre é decidido na
-> entrevista.
-
-- **Frontend:** **Angular 21** — standalone, signals, zoneless (conforme a versão).
-- **Padrões de código exigidos** (a ficha cobra cada um — IDs 4, 6, 7, 9, 10–15):
-  `@if`/`@switch`, `@for` com `track`, `@defer`, signals (writable/computed) como
-  fonte de estado, `model()` para two-way, `effect()` para efeitos colaterais,
-  `input()`/`output()`, `inject()`, Pipes para formatação.
-- **Framework CSS:** **Tailwind CSS** (ID5) — configuração em `tailwind.config.ts`.
-- **Dados (em duas fases):** **json-server** no MVP (E2) → **Supabase** na E3, com autenticação (JWT) e CRUD reais (IDs 21–22). A troca atinge só os Services (§2.1).
-- **PWA:** `manifest.webmanifest` — ícones, cores de tema, splash, standalone, offline (ID3). Valores em `docs/design-tokens.md`.
-- **Testes:** **Vitest** (unitário, padrão do Angular 21) + **Playwright** (E2E) + comandos exatos de suíte e lint (ID33).
-
-### 🌐 2.1. Camada de dados — regras estruturais
-
-> Declaradas uma a uma na entrevista, percorrendo os IDs da ficha.
-
-- **Componente não fala com o servidor:** todo acesso a dados passa por
-  **Services** injetados via `inject()` (ID15) — mudança de contrato mexe só
-  neles, nunca nas telas. **É esta regra que paga a migração da E3:** trocar o
-  json-server pelo Supabase reescreve os Services, e nenhuma tela.
-- **Autenticação e sessão (JWT):** Supabase Auth — fluxo: login → access token →
-  Functional Interceptor injeta globalmente → refresh automático (ID21, ID23).
-- **Interceptors funcionais:** token injetado globalmente + tratamento
-  centralizado de erros (ID23). Configuração via `provideHttpClient(withInterceptors([...]))`.
-- **Assíncrono ↔ reativo:** `toSignal()`/`toObservable()` na fronteira entre
-  RxJS e signals (ID25). Services expõem `signal()`/`computed()`; internamente usam `HttpClient` + `toSignal()`.
-- **Formulários Reativos** com validação, mensagens claras e submit
-  desabilitado quando inválido (ID24). `FormGroup`/`FormControl` + validadores + binding via `model()`.
+| Padrão | Descrição |
+|--------|-----------|
+| **Standalone Components** | Padrão atual — não se escreve `standalone: true` |
+| **Signals** | Estado reativo via `signal()` (writable) e `computed()` |
+| **Control Flow** | `@if` / `@for` / `@switch` / `@defer` (não `*ngIf`/`*ngFor`) |
+| **Input/Output** | `input()` / `output()` / `model()` como funções |
+| **Dependency Injection** | `inject()` (não injeção via construtor) |
+| **Lazy Loading** | Por rota de feature (`loadComponent`, `loadChildren`) |
+| **Data Layer Rule** | **Componente não fala com servidor** — todo acesso à API passa por Service/Repository; mudança de contrato mexe só nessa camada |
 
 ---
 
-## 🗂️ 3. Estrutura do Projeto
+## 2. Fonte de Dados — Por Fase
 
-```text
-.
-├── .agents/               # constituição, workflows e prompts dos agentes (§1)
-├── CLAUDE.md / AGENTS.md  # cascas por ferramenta (.claude/, .cursor/, .opencode/)
-├── README.md              # a vitrine, na estrutura exigida pela ficha
-├── docs/                  # prd.md, este arquivo, design-tokens.md, checklist.md e guias
-├── specs/                 # uma pasta por história implementada
-└── apps/
-    ├── web/               # o app Angular — package.json próprio
-    └── api/               # reservada para uma API real, se um dia existir
+| Fase | Tecnologia | Localização | Observação |
+|------|------------|-------------|------------|
+| **MVP (Entrega 2)** | `json-server` | `apps/api/db.json` | API fake local na porta 3001 |
+| **Entrega 3** | **Supabase** (BaaS) | Cloud (projeto Supabase da equipe) | Auth JWT + Postgres real + Realtime |
+
+**Regra de migração:** A troca de `json-server` → Supabase atinge **apenas os Services** em `apps/web/src/app/core/services/`. Componentes, guards, interceptors não mudam.
+
+---
+
+## 3. Testes — Ferramentas e Comandos
+
+| Camada | Ferramenta | Comando (em `apps/web`) |
+|--------|------------|-------------------------|
+| Unit / Integration | **Vitest** + `@angular/testing` + `@testing-library/angular` | `npm run test` (watch) / `npm run test:ci` (CI + coverage) |
+| E2E | **Playwright** | `npm run e2e` (UI) / `npm run e2e:ci` (headless CI) |
+| Lint / Format | **ESLint** + `@angular-eslint` + **Prettier** | `npm run lint` / `npm run format` |
+
+**Scripts raiz (`package.json` na raiz do repo):**
+```json
+{
+  "scripts": {
+    "api": "json-server --watch apps/api/db.json --port 3001",
+    "dev": "concurrently \"npm run api\" \"npm run start --prefix apps/web\"",
+    "test": "npm run test --prefix apps/web",
+    "test:ci": "npm run test:ci --prefix apps/web",
+    "e2e": "npm run e2e --prefix apps/web",
+    "e2e:ci": "npm run e2e:ci --prefix apps/web",
+    "lint": "npm run lint --prefix apps/web",
+    "format": "npm run format --prefix apps/web"
+  }
+}
 ```
 
-> 📌 **Por que `apps/` com duas pastas se só uma tem código.** Nesta disciplina os
-> dados vêm do json-server e depois do BaaS: não há backend para escrever. Mas a
-> casca do monorepo custa nada agora e evita mover o projeto inteiro no dia em que
-> uma API própria fizer sentido. **`apps/api/` nasce vazia, e continua vazia** — o
-> setup não gera backend nenhum; ela só guarda o lugar (e o `db.json` do
-> json-server, se o documento assim declarar).
+---
 
-### Organização interna do app (`apps/web/src/app/` — feature-driven)
+## 4. Estrutura do Projeto
 
+### Monorepo (raiz)
 ```
-src/app/
-├── core/                  # Singletons: Services de dados, Guards, Interceptors
-│   ├── services/          # RideService, AuthService, NotificationService, UserService
-│   ├── guards/            # authGuard, roleGuard (Functional Guards)
-│   └── interceptors/      # authInterceptor, errorInterceptor (Functional Interceptors)
-├── shared/                # Componentes burros (dumb), Pipes, Diretivas utilitárias
-│   ├── components/        # Button, Card, Input, Modal, Chip, Avatar, Spinner, EmptyState
-│   ├── pipes/             # rideStatus, timeAgo, seatCount, currencyBr
-│   └── directives/        # clickOutside, focusTrap, autoResize
-└── features/              # Uma pasta por domínio (não se importam entre si)
-    ├── auth/              # Login, registro, recuperação de senha, perfil
-    ├── rides/             # Ofertas (criar/listar/detalhar), solicitações, minhas caronas
-    ├── notifications/     # Sino, centro de notificações, preferências
-    └── profile/           # Perfil do usuário, veículo, preferências
+/
+├── apps/
+│   ├── web/                 # Angular 20+ standalone app
+│   └── api/                 # Vazia — reservada para API real futura
+│       └── db.json          # json-server MVP (Entrega 2)
+├── docs/
+│   ├── prd.md
+│   ├── design-tokens.md
+│   ├── architecture.md
+│   └── checklist.md
+├── package.json             # Scripts raiz (concurrently api + web)
+└── README.md
 ```
 
-**Regra de dependência (estrita):**
-- `core/` → pode ser importado por `shared/` e `features/`
-- `shared/` → pode ser importado por `features/`
-- `features/` → **não importam umas das outras** (comunicação via Services em `core/` ou eventos)
+### Organização interna — `apps/web/src/app/`
+```
+apps/web/src/app/
+├── core/                              # ProvidedIn: 'root' — singleton app-wide
+│   ├── services/                      # Data Services (RideService, AuthService, NotificationService)
+│   ├── guards/                        # Functional Route Guards (authGuard, roleGuard)
+│   ├── interceptors/                  # Functional HTTP Interceptors (authInterceptor, errorInterceptor)
+│   └── models/                        # Interfaces/Types compartilhados (User, Ride, Request, etc.)
+├── shared/                            # Componentes burros (dumb), Pipes, Diretivas
+│   ├── components/                    # Button, Card, Input, Modal, Toast, Spinner, Badge...
+│   ├── pipes/                         # dateBr, currencyBr, statusLabel, truncate...
+│   └── directives/                    # autofocus, clickOutside, mask...
+└── features/                          # Uma pasta por domínio de negócio (lazy loaded)
+    ├── auth/                          # Login, callback, registro veículo
+    ├── driver/                        # Criar oferta, gestão solicitações, minhas caronas (motorista)
+    ├── passenger/                     # Buscar caronas, detalhe oferta, solicitação, minhas caronas (passageiro)
+    ├── notifications/                 # Sino / central de notificações
+    └── shared/                        # Feature-level shared (ex.: ride-card usado por driver + passenger)
+```
+
+### Regra de dependência (estrita)
+
+```
+features/*  →  pode importar  core/*  e  shared/*
+shared/*    →  NÃO importa  core/*  nem  features/*
+core/*      →  NÃO importa  features/*  nem  shared/*
+```
 
 ---
 
-## 🧭 4. Roteamento e Navegação
+## 5. Glossário Técnico — PRD (PT) → Entidades (EN)
 
-> A ficha cobra a API funcional moderna (IDs 16–19): `provideRouter` com
-> `withComponentInputBinding()`, parâmetros de rota via Signal `input()`,
-> rotas filhas para hierarquia de layout, Functional Guards e Resolvers.
-
-**Configuração base (`app.config.ts`):**
-```ts
-provideRouter(routes, withComponentInputBinding())
-```
-
-**Estrutura de rotas (inicial — cresce por história):**
-- `/` → `HomeComponent` (shell com header, sino, navegação)
-  - `/rides` → `RidesShellComponent` (layout com sidebar)
-    - `/rides/offer` → `RideOfferComponent` (criar oferta) — `canActivate: [authGuard]`
-    - `/rides/search` → `RideSearchComponent` (buscar/filtros)
-    - `/rides/:id` → `RideDetailComponent` — `resolve: { ride: rideResolver }`
-  - `/my-rides` → `MyRidesComponent` — `canActivate: [authGuard]`
-  - `/notifications` → `NotificationsComponent` — `canActivate: [authGuard]`
-  - `/profile` → `ProfileComponent` — `canActivate: [authGuard]`
-- `/auth` → `AuthShellComponent`
-  - `/auth/login` → `LoginComponent`
-  - `/auth/callback` → `AuthCallbackComponent`
-
-**Padrões obrigatórios:**
-- Parâmetros de rota consumidos via `input()` Signal no componente destino (ID17): `rideId = input.required<string>()`
-- Rotas filhas (`children: []`) para hierarquia de layout (ID18)
-- Functional Guards para autenticação/autorização (ID19)
-- Resolvers para pré-carregamento de dados antes da transição (ID19)
+| Termo (PRD) | Entidade (EN) | Atributos Principais |
+|-------------|---------------|----------------------|
+| Comunidade UTFPR / Usuário autenticado | `User` | `id`, `name`, `email`, `role: 'student' \| 'staff'`, `utfappsId`, `avatarUrl?` |
+| Motorista | `Driver` (extends User) | `userId`, `vehicleId`, `rating?`, `totalRides?` |
+| Carona (passageiro) | `Passenger` (extends User) | `userId`, `preferredNeighborhood?` |
+| Veículo | `Vehicle` | `id`, `driverId`, `plate`, `model`, `color`, `seats`, `isActive` |
+| Ida / Volta | `RideDirection` | `enum: 'outbound' \| 'return'` |
+| Ponto de referência | `PickupPoint` | `id`, `neighborhoodId`, `label`, `lat?`, `lng?`, `order` |
+| Bairro | `Neighborhood` | `id`, `name` (23 fixos), `pickupPoints: PickupPoint[]` (3 cada) |
+| Oferta de carona | `RideOffer` | `id`, `driverId`, `vehicleId`, `direction`, `neighborhoodId`, `pickupPointId`, `departureTime`, `totalSeats`, `availableSeats`, `status: 'draft' \| 'available' \| 'full' \| 'cancelled' \| 'completed'`, `notes?`, `createdAt` |
+| Solicitação | `RideRequest` | `id`, `rideOfferId`, `passengerId`, `direction`, `status: 'pending' \| 'accepted' \| 'rejected' \| 'cancelled_by_passenger' \| 'cancelled_by_driver'`, `requestedAt`, `respondedAt?` |
+| Match / Aceite | (estado de `RideRequest`) | `status === 'accepted'` |
+| Cancelamento | (estado de `RideRequest` / `RideOffer`) | `status === 'cancelled_by_*'` + `cancelledAt`, `cancelledBy` |
+| Notificação (sino) | `Notification` | `id`, `userId`, `type: 'new_request' \| 'request_accepted' \| 'request_rejected' \| 'ride_cancelled' \| 'ride_reminder'`, `payload`, `read`, `createdAt` |
 
 ---
 
-## 🗄️ 5. Arquitetura de Dados (BaaS)
-
-### 📖 5.1. Glossário Técnico (Mapeamento)
-
-> A ponte entre o português do negócio (PRD §2) e o inglês do código.
-> **Dados e código em inglês, interface em português.**
-
-| Termo PRD (PT-BR) | Entidade/Tabela (EN) | Atributos principais |
-| :---------------- | :------------------- | :------------------- |
-| Comunidade UTFPR / Usuário autenticado | `User` | `id`, `name`, `email`, `role` (student/teacher), `utfappsId`, `campus`, `createdAt` |
-| Motorista | `Driver` (role em `User`) | `vehicleId`, `rating`, `totalRides` |
-| Carona / Passageiro | `Rider` (role em `User`) | `preferences`, `rating` |
-| Ida | `RideLeg` | `id`, `driverId`, `originPointId`, `destinationPointId` (UTFPR fixo), `departureTime`, `seatsTotal`, `seatsAvailable`, `status` (available/full/cancelled/completed) |
-| Volta | `RideLeg` | Mesmo schema — `originPointId` = UTFPR, `destinationPointId` = ponto no bairro |
-| Ponto de referência | `ReferencePoint` | `id`, `neighborhoodId`, `name`, `lat`, `lng`, `order` (1..3) |
-| Vaga | (atributo de `RideLeg`) | `seatsTotal`, `seatsAvailable` |
-| Solicitação | `RideRequest` | `id`, `riderId`, `rideLegId`, `status` (pending/accepted/rejected/cancelled), `createdAt` |
-| Match / Aceite | (transição de `RideRequest.status`) | `acceptedAt`, `acceptedBy` |
-| Cancelamento | (transição de `RideRequest.status` ou `RideLeg.status`) | `cancelledAt`, `cancelledBy`, `reason` |
-| Bairro | `Neighborhood` | `id`, `name`, `city` (UTFPR campus) |
-| Veículo | `Vehicle` | `id`, `driverId`, `plate`, `model`, `color`, `capacity` |
-
-> **Nota:** `Driver` e `Rider` são *roles* do `User` (campo `role` + profile estendido), não tabelas separadas.
-
-### 📊 5.2. Diagrama ER (Mermaid)
-
-> As tabelas do BaaS e seus relacionamentos — o mesmo diagrama vai renderizado
-> no README, como a ficha exige.
+## 6. Diagrama ER (Mermaid)
 
 ```mermaid
 erDiagram
-    User ||--o{ Vehicle : owns
-    User ||--o{ RideLeg : drives
-    User ||--o{ RideRequest : requests
-    Neighborhood ||--o{ ReferencePoint : contains
-    ReferencePoint ||--o{ RideLeg : "origin"
-    ReferencePoint ||--o{ RideLeg : "destination"
-    RideLeg ||--o{ RideRequest : receives
-    RideRequest }|--|| User : "rider"
-    RideLeg }|--|| User : "driver"
-    Vehicle }|--|| User : "driver"
+    USER ||--o{ VEHICLE : owns
+    USER ||--o{ RIDE_OFFER : creates
+    USER ||--o{ RIDE_REQUEST : makes
+    USER ||--o{ NOTIFICATION : receives
+    USER {
+        string id PK
+        string name
+        string email
+        string role
+        string utfappsId
+        string avatarUrl
+    }
+
+    VEHICLE {
+        string id PK
+        string driverId FK
+        string plate
+        string model
+        string color
+        int seats
+        boolean isActive
+    }
+
+    RIDE_OFFER ||--o{ RIDE_REQUEST : receives
+    RIDE_OFFER {
+        string id PK
+        string driverId FK
+        string vehicleId FK
+        string direction
+        string neighborhoodId FK
+        string pickupPointId FK
+        datetime departureTime
+        int totalSeats
+        int availableSeats
+        string status
+        string notes
+        datetime createdAt
+    }
+
+    RIDE_REQUEST {
+        string id PK
+        string rideOfferId FK
+        string passengerId FK
+        string direction
+        string status
+        datetime requestedAt
+        datetime respondedAt
+    }
+
+    NEIGHBORHOOD ||--o{ PICKUP_POINT : contains
+    NEIGHBORHOOD {
+        string id PK
+        string name
+    }
+
+    PICKUP_POINT {
+        string id PK
+        string neighborhoodId FK
+        string label
+        float lat
+        float lng
+        int order
+    }
+
+    RIDE_OFFER }|--|| NEIGHBORHOOD : belongs_to
+    RIDE_OFFER }|--|| PICKUP_POINT : departs_from
+    RIDE_REQUEST }|--|| USER : passenger
 ```
 
-### 🔒 5.3. Segredos, Ambientes e Contrato dos Dados
+---
 
-> Chaves do BaaS: a *anon key* pública vive em `environment.ts` (é pública por
-> design — a segurança vem das regras de acesso do BaaS, ex.: RLS no Supabase);
-> **service keys e segredos nunca entram no repositório**.
+## 7. Padrões Estruturais Cobrados pelos IDs (do `checklist.md`)
 
-| Fase | App roda em | Dados |
-| :--- | :--- | :--- |
-| **Local (E2/MVP)** | `ng serve` | json-server (`apps/api/db.json`) |
-| **Local (E3)** | `ng serve` | Supabase (projeto de dev) |
-| **Produção (E3)** | Vercel/Render | Supabase (projeto de produção) |
-
-**Contrato dos dados:**
-- **MVP (E2):** `apps/api/db.json` — JSON plano espelhando o ER acima. O json-server expõe REST automático.
-- **E3:** Schema do **Supabase** (PostgreSQL + RLS). Mesmas entidades, migração via scripts SQL.
-- **Regra de ouro:** A troca de fonte de dados atinge **apenas os Services em `core/services/`** — componentes, guards, interceptors, rotas não mudam.
+| ID | Padrão Declarado |
+|----|------------------|
+| **ID4** | **Standalone Components** — todos os componentes são standalone; nenhum `NgModule` no projeto. Bootstrap via `bootstrapApplication()` com `provideRouter()`, `provideHttpClient()`, `provideAnimations()`. |
+| **ID5** | **Framework CSS: Bootstrap 5** — variáveis CSS customizadas (`--bs-*`) mapeadas aos tokens em `docs/design-tokens.md`. Classes utilitárias Bootstrap + componentes customizados em `shared/components/`. |
+| **ID6** | **Control Flow `@if` / `@switch`** — obrigatório para exibição condicional. Ex.: `@if (rideOffer().status === 'available') { ... } @else if (...) { ... } @else { ... }` |
+| **ID7** | **Control Flow `@for` com `track`** — obrigatório para listas. Ex.: `@for (offer of rideOffers(); track offer.id) { <app-ride-card [offer]="offer" /> }` |
+| **ID8** | **Pipes** — nativos (`date`, `uppercase`) + customizados em `shared/pipes/`: `dateBr` (dd/MM/yyyy HH:mm), `statusLabel` (traduz enum para PT), `truncate` (limita chars), `seatBadge` (cor por disponibilidade). |
+| **ID9** | **Deferrable Views `@defer`** — componentes pesados (mapas, charts, editor rico) carregados sob demanda: `@defer (on viewport) { <app-map /> } @placeholder { <app-spinner /> } @loading (minimum 500ms) { <app-skeleton /> }` |
+| **ID10** | **One-way Binding + Signals** — interpolação `{{ rideOffer().departureTime \| dateBr }}`, property binding `[disabled]="rideOffer().availableSeats() === 0"`. Estado **sempre** via `signal()` / `computed()`. |
+| **ID11** | **Event Binding** — `(click)="onRequestRide(offer.id())"`, `(submit)="form.ngSubmit.emit($event)"`. Handlers atualizam Signals, não propriedades de classe. |
+| **ID12** | **Two-way Binding com `model()`** — formulários reativos usam `model()` para sincronização bidirecional: `departureTime = model<Date>(new Date())` no componente; `<input [model]="departureTime" (modelChange)="departureTime.set($event)" />` |
+| **ID13** | **Effects `effect()`** — side effects reativos: `effect(() => { if (authService.token()) router.navigate(['/home']); })`, `effect(() => { localStorage.setItem('theme', themeSignal()); })`. Sempre com `allowSignalWrites` se necessário. |
+| **ID14** | **`input()` / `output()` tipados** — comunicação pai↔filho: `@Component({...}) export class RideCard { offer = input.required<RideOffer>(); request = output<RideRequest>(); }` |
+| **ID15** | **Services com `inject()`** — comunicação entre componentes não-hierárquicos: `private rideService = inject(RideService);` em `core/services/`. Services são `providedIn: 'root'`. |
+| **ID16** | **Roteamento funcional `provideRouter()` + `withComponentInputBinding()`** — rotas em `app.routes.ts`: `export const routes: Routes = [...];` bootstrap: `provideRouter(routes, withComponentInputBinding())`. Parâmetros da URL viram `input()` no componente destino. |
+| **ID17** | **Consumo de parâmetros via `input()`** — no componente: `rideId = input.required<string>();` — o router popula automaticamente via `withComponentInputBinding()`. |
+| **ID18** | **Rotas aninhadas (child routes)** — layout shell com `<router-outlet>` pai + features lazy: `path: 'driver', loadChildren: () => import('./features/driver/driver.routes').then(m => m.DRIVER_ROUTES)`. |
+| **ID19** | **Functional Guards + Resolvers** — `authGuard = () => inject(AuthService).isAuthenticated() ? true : redirectToLogin();` — `provideRouter(routes, withGuards([authGuard]))`. Resolver: `rideResolver = () => inject(RideService).getById(inject(ActivatedRoute).snapshot.params['id']);`. |
+| **ID20** | **Requisições GET assíncronas** — Services usam `HttpClient` + `toSignal()` / `toObservable()`: `getOffers = () => this.http.get<RideOffer[]>('/rides').pipe(toSignal());` |
+| **ID21** | **Auth JWT com BaaS (Supabase)** — `AuthService` encapsula `supabase.auth`: `signInWithOAuth({ provider: 'utfapps' })`, `getSession()`, `onAuthStateChange()`. Token no interceptor. |
+| **ID22** | **CRUD completo no BaaS** — Services expõem `create()`, `update()`, `delete()`, `getById()`, `list()` mapeando para Supabase `from('table').select/insert/update/delete`. |
+| **ID23** | **Functional Interceptors** — `authInterceptor = (req, next) => { const token = inject(AuthService).accessToken(); return next(req.clone({ setHeaders: { Authorization: `Bearer ${token}` } })); }`; `errorInterceptor` centraliza toast + log + retry policy. |
+| **ID24** | **Formulários Reativos + Validação** — `FormBuilder` + `Validators` + `model()` binding. Botão submit: `[disabled]="form.invalid \| form.pristine"`. Mensagens de erro via `@if (control.invalid && control.touched) { @for (err of control.errors \| keyvalue; track err.key) { {{ errorMessages[err.key] }} } }` |
+| **ID25** | **`toSignal()` / `toObservable()`** — ponte RxJS ↔ Signals: `offersSignal = toSignal(this.http.get<Offer[]>('/offers'), { initialValue: [] });` — `obs$ = toObservable(someSignal);` |
+| **ID26** | **Gitflow** — branches `main` (produção) e `develop` (integração). Features em `feature/*` a partir de `develop`, PR para `develop`. Release/hotfix conforme Gitflow padrão. |
+| **ID28** | **Build + Deploy** — `ng build --configuration production` → output em `dist/apps/web`. Deploy automático Vercel/Render conectado à `main`. Variáveis de ambiente (Supabase keys) no painel do provedor. |
+| **ID29–ID33** | **IA-Assisted SDD** — Issues no GitHub Projects (Kanban). PRD → Architecture (`this doc`) → Specs por história → Implementação TDD (testes primeiro). MCP Context7 + Angular Skills ativos. Revisor técnico valida IA. |
 
 ---
 
-## 📋 6. Padrões Estruturais Cobrados pelos IDs
+## 8. Contrato dos Dados
 
-> Declaração explícita para cada ID da ficha que exige padrão de código ou infraestrutura. É esta declaração que os revisores usam como critério fixo.
+| Fase | Onde Mora | Formato |
+|------|-----------|---------|
+| **MVP (Entrega 2)** | `apps/api/db.json` | JSON estruturado espelhando o ER acima (arrays por entidade: `users`, `vehicles`, `rideOffers`, `rideRequests`, `neighborhoods`, `pickupPoints`, `notifications`) |
+| **Entrega 3** | **Supabase (Postgres)** | Tabelas relacionais com FKs, RLS (Row Level Security) por `user_id`, triggers para `availableSeats` decrement, Realtime subscriptions em `ride_requests` e `notifications` |
 
-| ID | Padrão Arquitetural Declarado |
-|----|-------------------------------|
-| **ID4** | Componentes **standalone only** — zero `NgModule` em todo o projeto |
-| **ID5** | Framework CSS: **Tailwind CSS** — configuração em `tailwind.config.ts`, tokens em `docs/design-tokens.md` |
-| **ID6** | Controle de fluxo: **`@if` / `@switch`** — proibido `*ngIf`/`*ngSwitch`/`*ngSwitchCase` |
-| **ID7** | Loop: **`@for` com `track` obrigatório** — ex.: `@for (ride of rides(); track ride.id)` |
-| **ID8** | Pipes: **nativos (date, currency, json) + custom** em `shared/pipes/` (ex.: `rideStatus`, `timeAgo`, `seatCount`, `currencyBr`) |
-| **ID9** | **`@defer`** para componentes pesados (mapa, charts, editor) — trigger `on viewport` ou `on interaction` |
-| **ID10** | Estado: **Signals only** — `signal()` (writable) + `computed()` — proibido `BehaviorSubject`/RxJS no estado de UI |
-| **ID11** | Event binding: **`(click)` / `(submit)` / `(change)`** → handlers atualizam signals |
-| **ID12** | Two-way binding: **`model()`** em componentes — ex.: `<input [model]="searchTerm()">` |
-| **ID13** | Side effects: **`effect(() => { ... })`** — logging, analytics, persistência local, sincronização |
-| **ID14** | Comunicação pai/filho: **`input()` + `output()`** tipadas — sem `@Input()`/`@Output()` decorators |
-| **ID15** | Comunicação não-hierárquica: **Services em `core/services/` + `inject()`** — ex.: `RideService`, `AuthService`, `NotificationService`, `UserService` |
-| **ID16** | Roteamento: **`provideRouter(routes, withComponentInputBinding())`** em `app.config.ts` |
-| **ID17** | Parâmetros de rota: **`input()` Signal** no componente destino — ex.: `rideId = input.required<string>()` |
-| **ID18** | Rotas filhas: **Nested routes** para layout com shell (header, sidebar, sino) — `children: []` |
-| **ID19** | Guards/Resolvers: **Functional** — `canActivate: [authGuard]`, `resolve: { ride: rideResolver }` |
-| **ID20** | GET assíncrono: **`HttpClient` + `toSignal()`** em Services — ex.: `rides = toSignal(http.get<RideLeg[]>('/rides'))` |
-| **ID21** | Auth JWT: **Supabase Auth** — login → access token → Functional Interceptor injeta → refresh automático via Supabase client |
-| **ID22** | CRUD: **Services expõem `signal()`/`computed()`** — internamente `HttpClient` (MVP) ou Supabase client (E3) + `toSignal()`; BaaS client encapsulado no Service |
-| **ID23** | Interceptors: **Functional** — `provideHttpClient(withInterceptors([authInterceptor, errorInterceptor]))` |
-| **ID24** | Forms: **Reactive Forms** — `FormGroup`/`FormControl` + validadores síncronos/assíncronos + `model()` binding + submit desabilitado se `form.invalid` |
-| **ID25** | Ponte async/reativo: **`toSignal(observable)` / `toObservable(signal)`** na borda dos Services (camada de dados) |
+**Regra imutável:** A troca de fonte de dados atinge **apenas os Services** em `core/services/`. O resto da aplicação (componentes, guards, interceptors, rotas) não sabe nem se importa de onde vêm os dados.
 
 ---
 
-## 🗺️ 7. Mapa de Domínios e Rotas
+## 9. Garantia do Setup (Passo 0 do `/utf-setup`)
 
-> **Este índice cresce.** Não é para preencher agora: **uma linha por história
-> implementada** — a spec é que define rota e contrato. Aqui fica só o mapa de
-> quem já existe.
+Este documento declara explicitamente as quatro coisas que o setup exige:
 
-| Domínio | Rota | Guard | Dados (service) | US |
-| :------ | :--- | :---- | :-------------- | :-- |
-| *(vazio — preenchido conforme histórias forem implementadas)* | | | | |
+1. ✅ **Framework frontend:** Angular 20+ standalone + Signals + sintaxe moderna + padrões listados na Seção 1
+2. ✅ **Fonte de dados por fase:** json-server (`apps/api/db.json`) no MVP → Supabase na Entrega 3 (Seção 2)
+3. ✅ **Estrutura de pastas:** Monorepo `apps/web` + `apps/api` + organização `core/shared/features` com regra de dependência (Seção 4)
+4. ✅ **Como rodar testes:** Vitest (`npm run test`/`test:ci`), Playwright (`npm run e2e`/`e2e:ci`), Lint/Format (Seção 3)
 
 ---
 
-## 📅 8. Histórico
+## 10. Histórico
 
 | Data | Versão | O que mudou |
-| :--- | :----- | :---------- |
-| 2026-10-10 | 1.0.0 | Versão inicial via `/utf-architecture` — Angular 21, Supabase, Vitest/Playwright, Tailwind, estrutura feature-driven |
+|------|--------|-------------|
+| 2026-10-11 | 1.0.0 | Versão inicial via `/utf-architecture` — todas as decisões da Fase 0 registradas |
 
 ---
 
-## 🛑 O que ainda **não** está neste documento
-
-Detalhes de funcionalidade — contratos de uma tela específica, máquinas de
-estado de uma história — **não entram aqui**: nascem sob demanda no `spec.md`
-de cada história. Este documento guarda só o que vale para o sistema inteiro.
+> **Próximo passo:** `/utf-setup` — o aluno lê fora do chat; o commit é dele.
+>
+> *Antes de commitar, rode `/utf-tutor architecture` — ele explica standalone, injeção de dependência, signals e o modelo de dados do BaaS em cima das suas escolhas, não em exemplo genérico.*

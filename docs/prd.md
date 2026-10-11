@@ -1,8 +1,8 @@
 # 📄 Product Requirements Document (PRD)
 
 **Projeto:** Caronas UTFPR
-**Versão:** 1.0.0 · rascunho via `/utf-prd` — aguarda leitura do aluno e commit dele
-**Última atualização:** 2026-09-16
+**Versão:** 1.1.0 · atualizado via `/utf-design` (ponto de desistência US01)
+**Última atualização:** 2026-10-11
 
 > 🤖 **Este documento é a fonte da verdade sobre o QUE o produto faz.** Regra de
 > negócio que não estiver aqui não existe — nem para a equipe, nem para a IA.
@@ -67,8 +67,11 @@ Todas nascem `Draft` — **só o aluno promove a `Ready`**.
 - [ ] **Dado** horário ou ponto vazio, **quando** tento publicar, **então** destaca "preenchimento obrigatório" e bloqueia.
 - [ ] **Dado** horário no passado, **quando** tento publicar, **então** recusa com "precisa ser no futuro".
 - [ ] **Dado** cadastro parcial, **quando** desisto e confirmo descarte, **então** nada é registrado.
+- [ ] **Dado** motorista com rota habitual salva no turno (matutino/noturno), **quando** inicia nova oferta, **então** vê card "Repetir oferta habitual" com bairro, ponto fixo, veículo e vagas pré-preenchidos; um toque em "Publicar agora" confirma a oferta.
+- [ ] **Dado** motorista abre formulário de nova oferta, **quando** carrega Passo 2, **então** campos de bairro, ponto fixo, veículo e vagas já vêm pré-preenchidos com última viagem do mesmo turno; só horário exige confirmação/ajuste.
+- [ ] **Dado** motorista sem veículo homologado, **quando** tenta acessar formulário de oferta, **então** bloqueia antes do Passo 1 com modal contextual que redireciona para cadastro rápido de placa/modelo.
 
-**Regras relacionadas:** RN01, RN02, RN03, RN10, RN11
+**Regras relacionadas:** RN01, RN02, RN03, RN10, RN11, RN15
 
 ### US02 — busca e filtros · `Must Have` · `L` · Status: `Ready`
 
@@ -202,6 +205,7 @@ Contador de viagens voluntárias e estimativa de impacto no campus. Cabeçalho r
 | RN12 | Sem alterar horário/ponto/rota com confirmado sem revalidar; sem aprovar após partida; sem apagar histórico | US04 |
 | RN13 | Sem avaliar antes do encerramento; desistência tardia registrada para reputação; oferecer exige veículo + papel motorista | US05 |
 | RN14 | Autenticação delegada ao UTFApps; sem cadastro manual e sem senha local; só vínculo ativo entra | US12 |
+| RN15 | O sistema memoriza última rota do motorista por turno (matutino/noturno) e oferece "Repetir oferta habitual" com 1 clique + pré-preenchimento automático no formulário; motorista sem veículo homologado é bloqueado antes do Passo 1 com redirecionamento para cadastro | US01 |
 
 ---
 
@@ -233,6 +237,7 @@ Detalhe de implementação (Service Workers, tempos, canais) fica para o `archit
 | Data | Versão | O que mudou |
 | :--- | :----- | :---------- |
 | 2026-09-16 | 1.0.0 | Versão inicial via `/utf-prd` (rascunho, aguarda leitura e commit do aluno) |
+| 2026-10-11 | 1.1.0 | Adicionados critérios de aceite e RN15 para mitigação de abandono no US01 (rota habitual 1-clique, pré-preenchimento por turno, bloqueio antecipado sem veículo) via `/utf-design` |
 
 ---
 
