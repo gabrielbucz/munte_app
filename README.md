@@ -5,7 +5,7 @@ Plataforma voluntária e sem custos para conectar alunos e servidores da UTFPR q
 
 ## Autores
 
-- Erick Souza — [@limerick28](https://github.com/limerick28)
+- Erick De Lima Oliveira — [@limerick28](https://github.com/limerick28)
 - Augusto Emanuel Pereira — [@Xaugusto](https://github.com/Xaugusto)
 - Gabriel Buczak — [@gabrielbucz](https://github.com/gabrielbucz)
 
