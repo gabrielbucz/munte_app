@@ -1,8 +1,8 @@
 # 🛠️ Architecture / SSD
 
-**Projeto:** [nome]
-**Versão:** 0.0.0 · esqueleto — preencha via `/utf-architecture`
-**Última atualização:** [data]
+**Projeto:** Caronas UTFPR
+**Versão:** 1.0.0 · definido via `/utf-architecture`
+**Última atualização:** 2026-10-10
 
 > 🤖 **O `prd.md` responde _o quê_ o produto faz. Este responde _onde as coisas
 > moram e como se chamam_.** Detalhe de tela — rota, componente, contrato —
@@ -27,8 +27,8 @@
 | Fluxos da IA | `.agents/workflows/` | PRD, backlog, design, architecture, setup, ciclo por Issue, ciclo por tarefa, tutor |
 | Agentes (subagentes) | `.agents/agents/` (cascas em `.claude/`, `.cursor/`, `.opencode/`) | Implementador, revisores, auditor final e tutor |
 | Ficha da disciplina | `docs/checklist.md` | Regras do projeto, IDs e entregas |
-| Protótipo (Stitch/Figma) | [link público] | Telas, jornadas e hierarquia visual (ID1) |
-| MCPs da IDE | [ex.: Figma, Supabase, Context7] | Contexto exato do projeto para o agente (ID32) |
+| Protótipo (Stitch/Figma) | https://stitch.withgoogle.com/projects/18188893525436397761 / https://www.figma.com/design/sGZhxiiZS7xKHRMMemq12L/Munte-App?node-id=1-212&t=UaY3ydqlr5EiowMd-1 | Telas, jornadas e hierarquia visual (ID1) |
+| MCPs da IDE | Context7, Supabase, Figma | Contexto exato do projeto para o agente (ID32) |
 
 ---
 
@@ -39,15 +39,15 @@
 > O que a ficha fixa entra como está; o que ela deixa livre é decidido na
 > entrevista.
 
-- **Frontend:** Angular [versão 20+] — standalone, signals, zoneless [conforme a versão].
+- **Frontend:** **Angular 21** — standalone, signals, zoneless (conforme a versão).
 - **Padrões de código exigidos** (a ficha cobra cada um — IDs 4, 6, 7, 9, 10–15):
   `@if`/`@switch`, `@for` com `track`, `@defer`, signals (writable/computed) como
   fonte de estado, `model()` para two-way, `effect()` para efeitos colaterais,
   `input()`/`output()`, `inject()`, Pipes para formatação.
-- **Framework CSS:** [Tailwind, PrimeNG, …] (ID5)
-- **Dados (em duas fases):** **json-server** no MVP (E2) → **[Supabase, PocketBase, …]** na E3, com autenticação (JWT) e CRUD reais (IDs 21–22). A troca atinge só os Services (§2.1).
-- **PWA:** `manifest.webmanifest` — ícones, cores de tema, splash, standalone, offline (ID3)
-- **Testes:** [ferramenta do gerador] + comandos exatos de suíte e lint (ID33)
+- **Framework CSS:** **Tailwind CSS** (ID5) — configuração em `tailwind.config.ts`.
+- **Dados (em duas fases):** **json-server** no MVP (E2) → **Supabase** na E3, com autenticação (JWT) e CRUD reais (IDs 21–22). A troca atinge só os Services (§2.1).
+- **PWA:** `manifest.webmanifest` — ícones, cores de tema, splash, standalone, offline (ID3). Valores em `docs/design-tokens.md`.
+- **Testes:** **Vitest** (unitário, padrão do Angular 21) + **Playwright** (E2E) + comandos exatos de suíte e lint (ID33).
 
 ### 🌐 2.1. Camada de dados — regras estruturais
 
@@ -56,14 +56,15 @@
 - **Componente não fala com o servidor:** todo acesso a dados passa por
   **Services** injetados via `inject()` (ID15) — mudança de contrato mexe só
   neles, nunca nas telas. **É esta regra que paga a migração da E3:** trocar o
-  json-server pelo BaaS reescreve os Services, e nenhuma tela.
-- **Autenticação e sessão (JWT):** [fluxo com o serviço de identidade do BaaS — ID21]
+  json-server pelo Supabase reescreve os Services, e nenhuma tela.
+- **Autenticação e sessão (JWT):** Supabase Auth — fluxo: login → access token →
+  Functional Interceptor injeta globalmente → refresh automático (ID21, ID23).
 - **Interceptors funcionais:** token injetado globalmente + tratamento
-  centralizado de erros (ID23).
+  centralizado de erros (ID23). Configuração via `provideHttpClient(withInterceptors([...]))`.
 - **Assíncrono ↔ reativo:** `toSignal()`/`toObservable()` na fronteira entre
-  RxJS e signals (ID25).
+  RxJS e signals (ID25). Services expõem `signal()`/`computed()`; internamente usam `HttpClient` + `toSignal()`.
 - **Formulários Reativos** com validação, mensagens claras e submit
-  desabilitado quando inválido (ID24).
+  desabilitado quando inválido (ID24). `FormGroup`/`FormControl` + validadores + binding via `model()`.
 
 ---
 
@@ -90,9 +91,27 @@
 
 ### Organização interna do app (`apps/web/src/app/` — feature-driven)
 
-[decidido na entrevista: `core/` (singletons: guards, interceptors, services de
-dados), `shared/` (componentes burros, pipes), `features/` (uma pasta por
-domínio) — com a regra de dependência: features não importam umas das outras.]
+```
+src/app/
+├── core/                  # Singletons: Services de dados, Guards, Interceptors
+│   ├── services/          # RideService, AuthService, NotificationService, UserService
+│   ├── guards/            # authGuard, roleGuard (Functional Guards)
+│   └── interceptors/      # authInterceptor, errorInterceptor (Functional Interceptors)
+├── shared/                # Componentes burros (dumb), Pipes, Diretivas utilitárias
+│   ├── components/        # Button, Card, Input, Modal, Chip, Avatar, Spinner, EmptyState
+│   ├── pipes/             # rideStatus, timeAgo, seatCount, currencyBr
+│   └── directives/        # clickOutside, focusTrap, autoResize
+└── features/              # Uma pasta por domínio (não se importam entre si)
+    ├── auth/              # Login, registro, recuperação de senha, perfil
+    ├── rides/             # Ofertas (criar/listar/detalhar), solicitações, minhas caronas
+    ├── notifications/     # Sino, centro de notificações, preferências
+    └── profile/           # Perfil do usuário, veículo, preferências
+```
+
+**Regra de dependência (estrita):**
+- `core/` → pode ser importado por `shared/` e `features/`
+- `shared/` → pode ser importado por `features/`
+- `features/` → **não importam umas das outras** (comunicação via Services em `core/` ou eventos)
 
 ---
 
@@ -102,7 +121,29 @@ domínio) — com a regra de dependência: features não importam umas das outra
 > `withComponentInputBinding()`, parâmetros de rota via Signal `input()`,
 > rotas filhas para hierarquia de layout, Functional Guards e Resolvers.
 
-[mapa inicial de rotas nasce aqui; cada história nova preenche uma linha no §6]
+**Configuração base (`app.config.ts`):**
+```ts
+provideRouter(routes, withComponentInputBinding())
+```
+
+**Estrutura de rotas (inicial — cresce por história):**
+- `/` → `HomeComponent` (shell com header, sino, navegação)
+  - `/rides` → `RidesShellComponent` (layout com sidebar)
+    - `/rides/offer` → `RideOfferComponent` (criar oferta) — `canActivate: [authGuard]`
+    - `/rides/search` → `RideSearchComponent` (buscar/filtros)
+    - `/rides/:id` → `RideDetailComponent` — `resolve: { ride: rideResolver }`
+  - `/my-rides` → `MyRidesComponent` — `canActivate: [authGuard]`
+  - `/notifications` → `NotificationsComponent` — `canActivate: [authGuard]`
+  - `/profile` → `ProfileComponent` — `canActivate: [authGuard]`
+- `/auth` → `AuthShellComponent`
+  - `/auth/login` → `LoginComponent`
+  - `/auth/callback` → `AuthCallbackComponent`
+
+**Padrões obrigatórios:**
+- Parâmetros de rota consumidos via `input()` Signal no componente destino (ID17): `rideId = input.required<string>()`
+- Rotas filhas (`children: []`) para hierarquia de layout (ID18)
+- Functional Guards para autenticação/autorização (ID19)
+- Resolvers para pré-carregamento de dados antes da transição (ID19)
 
 ---
 
@@ -115,7 +156,20 @@ domínio) — com a regra de dependência: features não importam umas das outra
 
 | Termo PRD (PT-BR) | Entidade/Tabela (EN) | Atributos principais |
 | :---------------- | :------------------- | :------------------- |
-| | | |
+| Comunidade UTFPR / Usuário autenticado | `User` | `id`, `name`, `email`, `role` (student/teacher), `utfappsId`, `campus`, `createdAt` |
+| Motorista | `Driver` (role em `User`) | `vehicleId`, `rating`, `totalRides` |
+| Carona / Passageiro | `Rider` (role em `User`) | `preferences`, `rating` |
+| Ida | `RideLeg` | `id`, `driverId`, `originPointId`, `destinationPointId` (UTFPR fixo), `departureTime`, `seatsTotal`, `seatsAvailable`, `status` (available/full/cancelled/completed) |
+| Volta | `RideLeg` | Mesmo schema — `originPointId` = UTFPR, `destinationPointId` = ponto no bairro |
+| Ponto de referência | `ReferencePoint` | `id`, `neighborhoodId`, `name`, `lat`, `lng`, `order` (1..3) |
+| Vaga | (atributo de `RideLeg`) | `seatsTotal`, `seatsAvailable` |
+| Solicitação | `RideRequest` | `id`, `riderId`, `rideLegId`, `status` (pending/accepted/rejected/cancelled), `createdAt` |
+| Match / Aceite | (transição de `RideRequest.status`) | `acceptedAt`, `acceptedBy` |
+| Cancelamento | (transição de `RideRequest.status` ou `RideLeg.status`) | `cancelledAt`, `cancelledBy`, `reason` |
+| Bairro | `Neighborhood` | `id`, `name`, `city` (UTFPR campus) |
+| Veículo | `Vehicle` | `id`, `driverId`, `plate`, `model`, `color`, `capacity` |
+
+> **Nota:** `Driver` e `Rider` são *roles* do `User` (campo `role` + profile estendido), não tabelas separadas.
 
 ### 📊 5.2. Diagrama ER (Mermaid)
 
@@ -124,9 +178,19 @@ domínio) — com a regra de dependência: features não importam umas das outra
 
 ```mermaid
 erDiagram
+    User ||--o{ Vehicle : owns
+    User ||--o{ RideLeg : drives
+    User ||--o{ RideRequest : requests
+    Neighborhood ||--o{ ReferencePoint : contains
+    ReferencePoint ||--o{ RideLeg : "origin"
+    ReferencePoint ||--o{ RideLeg : "destination"
+    RideLeg ||--o{ RideRequest : receives
+    RideRequest }|--|| User : "rider"
+    RideLeg }|--|| User : "driver"
+    Vehicle }|--|| User : "driver"
 ```
 
-### 🔒 5.3. Segredos e ambientes
+### 🔒 5.3. Segredos, Ambientes e Contrato dos Dados
 
 > Chaves do BaaS: a *anon key* pública vive em `environment.ts` (é pública por
 > design — a segurança vem das regras de acesso do BaaS, ex.: RLS no Supabase);
@@ -134,13 +198,49 @@ erDiagram
 
 | Fase | App roda em | Dados |
 | :--- | :--- | :--- |
-| **Local (E2/MVP)** | `ng serve` | json-server (`db.json` local) |
-| **Local (E3)** | `ng serve` | [BaaS — projeto de dev] |
-| **Produção (E3)** | [Vercel/Render] | [BaaS — projeto de produção] |
+| **Local (E2/MVP)** | `ng serve` | json-server (`apps/api/db.json`) |
+| **Local (E3)** | `ng serve` | Supabase (projeto de dev) |
+| **Produção (E3)** | Vercel/Render | Supabase (projeto de produção) |
+
+**Contrato dos dados:**
+- **MVP (E2):** `apps/api/db.json` — JSON plano espelhando o ER acima. O json-server expõe REST automático.
+- **E3:** Schema do **Supabase** (PostgreSQL + RLS). Mesmas entidades, migração via scripts SQL.
+- **Regra de ouro:** A troca de fonte de dados atinge **apenas os Services em `core/services/`** — componentes, guards, interceptors, rotas não mudam.
 
 ---
 
-## 🗺️ 6. Mapa de Domínios e Rotas
+## 📋 6. Padrões Estruturais Cobrados pelos IDs
+
+> Declaração explícita para cada ID da ficha que exige padrão de código ou infraestrutura. É esta declaração que os revisores usam como critério fixo.
+
+| ID | Padrão Arquitetural Declarado |
+|----|-------------------------------|
+| **ID4** | Componentes **standalone only** — zero `NgModule` em todo o projeto |
+| **ID5** | Framework CSS: **Tailwind CSS** — configuração em `tailwind.config.ts`, tokens em `docs/design-tokens.md` |
+| **ID6** | Controle de fluxo: **`@if` / `@switch`** — proibido `*ngIf`/`*ngSwitch`/`*ngSwitchCase` |
+| **ID7** | Loop: **`@for` com `track` obrigatório** — ex.: `@for (ride of rides(); track ride.id)` |
+| **ID8** | Pipes: **nativos (date, currency, json) + custom** em `shared/pipes/` (ex.: `rideStatus`, `timeAgo`, `seatCount`, `currencyBr`) |
+| **ID9** | **`@defer`** para componentes pesados (mapa, charts, editor) — trigger `on viewport` ou `on interaction` |
+| **ID10** | Estado: **Signals only** — `signal()` (writable) + `computed()` — proibido `BehaviorSubject`/RxJS no estado de UI |
+| **ID11** | Event binding: **`(click)` / `(submit)` / `(change)`** → handlers atualizam signals |
+| **ID12** | Two-way binding: **`model()`** em componentes — ex.: `<input [model]="searchTerm()">` |
+| **ID13** | Side effects: **`effect(() => { ... })`** — logging, analytics, persistência local, sincronização |
+| **ID14** | Comunicação pai/filho: **`input()` + `output()`** tipadas — sem `@Input()`/`@Output()` decorators |
+| **ID15** | Comunicação não-hierárquica: **Services em `core/services/` + `inject()`** — ex.: `RideService`, `AuthService`, `NotificationService`, `UserService` |
+| **ID16** | Roteamento: **`provideRouter(routes, withComponentInputBinding())`** em `app.config.ts` |
+| **ID17** | Parâmetros de rota: **`input()` Signal** no componente destino — ex.: `rideId = input.required<string>()` |
+| **ID18** | Rotas filhas: **Nested routes** para layout com shell (header, sidebar, sino) — `children: []` |
+| **ID19** | Guards/Resolvers: **Functional** — `canActivate: [authGuard]`, `resolve: { ride: rideResolver }` |
+| **ID20** | GET assíncrono: **`HttpClient` + `toSignal()`** em Services — ex.: `rides = toSignal(http.get<RideLeg[]>('/rides'))` |
+| **ID21** | Auth JWT: **Supabase Auth** — login → access token → Functional Interceptor injeta → refresh automático via Supabase client |
+| **ID22** | CRUD: **Services expõem `signal()`/`computed()`** — internamente `HttpClient` (MVP) ou Supabase client (E3) + `toSignal()`; BaaS client encapsulado no Service |
+| **ID23** | Interceptors: **Functional** — `provideHttpClient(withInterceptors([authInterceptor, errorInterceptor]))` |
+| **ID24** | Forms: **Reactive Forms** — `FormGroup`/`FormControl` + validadores síncronos/assíncronos + `model()` binding + submit desabilitado se `form.invalid` |
+| **ID25** | Ponte async/reativo: **`toSignal(observable)` / `toObservable(signal)`** na borda dos Services (camada de dados) |
+
+---
+
+## 🗺️ 7. Mapa de Domínios e Rotas
 
 > **Este índice cresce.** Não é para preencher agora: **uma linha por história
 > implementada** — a spec é que define rota e contrato. Aqui fica só o mapa de
@@ -148,15 +248,15 @@ erDiagram
 
 | Domínio | Rota | Guard | Dados (service) | US |
 | :------ | :--- | :---- | :-------------- | :-- |
-| | | | | |
+| *(vazio — preenchido conforme histórias forem implementadas)* | | | | |
 
 ---
 
-## 📅 7. Histórico
+## 📅 8. Histórico
 
 | Data | Versão | O que mudou |
 | :--- | :----- | :---------- |
-| | 1.0.0 | Versão inicial via `/utf-architecture` |
+| 2026-10-10 | 1.0.0 | Versão inicial via `/utf-architecture` — Angular 21, Supabase, Vitest/Playwright, Tailwind, estrutura feature-driven |
 
 ---
 
