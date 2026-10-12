@@ -70,7 +70,7 @@ Família: `Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Robo
 | desabilitado | `.btn-primary:disabled` → `bg: var(--bs-disabled-bg)`, `color: var(--bs-disabled-color)`, `opacity: 0.65` |
 | carregando | `.btn-primary.disabled` + `.spinner-border.spinner-border-sm` (mantém cor, adiciona spinner) |
 
-## Breakpoints (Mobile-First) — idênticos ao Bootstrap 5
+## Breakpoints (Mobile-First) — valores próprios do app (diferem do Bootstrap 5)
 
 | Token | Largura mínima | Classe/uso |
 | --- | --- | --- |

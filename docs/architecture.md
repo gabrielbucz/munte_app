@@ -88,7 +88,7 @@ apps/web/src/app/
 │   ├── services/                      # Data Services (RideService, AuthService, NotificationService)
 │   ├── guards/                        # Functional Route Guards (authGuard, roleGuard)
 │   ├── interceptors/                  # Functional HTTP Interceptors (authInterceptor, errorInterceptor)
-│   └── models/                        # Interfaces/Types compartilhados (User, Ride, Request, etc.)
+│   └── models/                        # Interfaces/Types compartilhados (User, RideOffer, RideRequest, Notification, etc.)
 ├── shared/                            # Componentes burros (dumb), Pipes, Diretivas
 │   ├── components/                    # Button, Card, Input, Modal, Toast, Spinner, Badge...
 │   ├── pipes/                         # dateBr, currencyBr, statusLabel, truncate...
@@ -196,6 +196,15 @@ erDiagram
         float lat
         float lng
         int order
+    }
+
+    NOTIFICATION {
+        string id PK
+        string userId FK
+        string type
+        string payload
+        boolean read
+        datetime createdAt
     }
 
     RIDE_OFFER }|--|| NEIGHBORHOOD : belongs_to
