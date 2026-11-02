@@ -1,0 +1,24 @@
+{
+  "name": "munte-app",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/web",
+    "apps/api"
+  ],
+  "scripts": {
+    "api": "json-server --watch apps/api/db.json --port 3001",
+    "dev": "concurrently \"npm run api\" \"npm run start --prefix apps/web\"",
+    "start": "npm run start --prefix apps/web",
+    "test": "npm run test --prefix apps/web",
+    "test:ci": "npm run test:ci --prefix apps/web",
+    "e2e": "npm run e2e --prefix apps/web",
+    "e2e:ci": "npm run e2e:ci --prefix apps/web",
+    "lint": "npm run lint --prefix apps/web",
+    "format": "npm run format --prefix apps/web"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "json-server": "^0.17.4"
+  }
+}
