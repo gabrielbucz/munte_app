@@ -1,0 +1,47 @@
+import { Component, signal } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+
+@Component({
+  selector: 'app-root',
+  imports: [RouterOutlet],
+  template: `
+    <main class="min-h-screen bg-background p-8 text-texto">
+      <h1 class="text-3xl font-bold">
+        Tema do projeto
+      </h1>
+
+      <div class="mt-6 flex flex-wrap gap-4">
+        <button
+          class="rounded-lg border border-primaria bg-primaria px-4 py-2 text-sm font-semibold text-white
+                 hover:bg-primaria-hover hover:border-primaria-hover
+                 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primaria/25
+                 disabled:cursor-not-allowed disabled:bg-desabilitado disabled:text-desabilitado-texto"
+        >
+          Primária
+        </button>
+
+        <button
+          class="rounded-lg border border-perigo bg-perigo px-4 py-2 text-sm font-semibold text-white
+                 hover:bg-perigo-hover
+                 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-perigo/25
+                 disabled:cursor-not-allowed disabled:bg-desabilitado disabled:text-desabilitado-texto"
+        >
+          Perigo
+        </button>
+
+        <button
+          class="rounded-lg border border-primaria bg-transparent px-4 py-2 text-sm font-semibold text-primaria
+                 hover:bg-primaria hover:text-white
+                 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primaria/25
+                 disabled:cursor-not-allowed disabled:border-desabilitado disabled:text-desabilitado-texto"
+        >
+          Contorno
+        </button>
+      </div>
+    </main>
+  `,
+  styles: []
+})
+export class App {
+  protected readonly title = signal('munte-app');
+}

@@ -1,0 +1,69 @@
+@import "tailwindcss";
+
+/* Light Mode — tema padrão */
+:root {
+    --primaria: #0066CC;
+    --primaria-hover: #0052A3;
+    --superficie: #FFFFFF;
+    --background: #F8FAFC;
+    --texto: #0F172A;
+    --texto-suave: #64748B;
+    --borda: #E2E8F0;
+    --sucesso: #16A34A;
+    --sucesso-hover: #15803D;
+    --perigo: #DC2626;
+    --perigo-hover: #B91C1C;
+    --alerta: #D97706;
+    --desabilitado: #CBD5E1;
+    --desabilitado-texto: #94A3B8;
+}
+
+/* Dark Mode */
+:root[data-theme="dark"] {
+    --primaria: #3B82F6;
+    --primaria-hover: #60A5FA;
+    --superficie: #1E293B;
+    --background: #0F172A;
+    --texto: #F8FAFC;
+    --texto-suave: #94A3B8;
+    --borda: #334155;
+    --sucesso: #22C55E;
+    --sucesso-hover: #4ADE80;
+    --perigo: #EF4444;
+    --perigo-hover: #F87171;
+    --alerta: #FBBF24;
+    --desabilitado: #475569;
+    --desabilitado-texto: #64748B;
+}
+
+/* Tokens reconhecidos pelo Tailwind CSS v4 */
+@theme inline {
+    --color-primaria: var(--primaria);
+    --color-primaria-hover: var(--primaria-hover);
+    --color-superficie: var(--superficie);
+    --color-background: var(--background);
+    --color-texto: var(--texto);
+    --color-texto-suave: var(--texto-suave);
+    --color-borda: var(--borda);
+    --color-sucesso: var(--sucesso);
+    --color-sucesso-hover: var(--sucesso-hover);
+    --color-perigo: var(--perigo);
+    --color-perigo-hover: var(--perigo-hover);
+    --color-alerta: var(--alerta);
+    --color-desabilitado: var(--desabilitado);
+    --color-desabilitado-texto: var(--desabilitado-texto);
+}
+
+/* Breakpoints do projeto */
+@theme {
+    --breakpoint-sm: 640px;
+    --breakpoint-md: 768px;
+    --breakpoint-lg: 1024px;
+    --breakpoint-xl: 1280px;
+}
+
+/* Tipografia global */
+body {
+    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        Roboto, sans-serif;
+}
