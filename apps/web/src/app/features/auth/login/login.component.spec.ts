@@ -49,5 +49,16 @@ describe('LoginComponent (CA1 — envio de link de confirmação)', () => {
     expect(component.erro).toContain('e-mail não permitido');
     expect(component.mensagem).toBe('');
   });
+
+  it('não deve exibir "link enviado" quando o serviço lança erro genérico', async () => {
+    authService.requestMagicLink.mockRejectedValue(new Error('Falha inesperada do servidor'));
+    component.form.setValue({ email: 'aluno@utfpr.edu.br' });
+
+    await component.onSubmit();
+
+    expect(authService.requestMagicLink).toHaveBeenCalledWith('aluno@utfpr.edu.br');
+    expect(component.erro).toContain('e-mail não permitido ou link inválido');
+    expect(component.mensagem).toBe('');
+  });
 });
 

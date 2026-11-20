@@ -44,4 +44,19 @@ describe('AuthService (CA1 — link de confirmação por e-mail institucional)',
 
     expect(mockSignInWithOtp).not.toHaveBeenCalled();
   });
+
+  it('deve propagar erro do BaaS quando o envio do link falha', async () => {
+    mockSignInWithOtp.mockResolvedValue({
+      data: null,
+      error: { message: 'Falha ao enviar e-mail de confirmação' },
+    });
+
+    await expect(
+      service.requestMagicLink('aluno@utfpr.edu.br')
+    ).rejects.toThrow('Falha ao enviar e-mail de confirmação');
+
+    expect(mockSignInWithOtp).toHaveBeenCalledWith({
+      email: 'aluno@utfpr.edu.br',
+    });
+  });
 });
