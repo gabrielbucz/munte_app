@@ -16,7 +16,7 @@
 
 ## Tarefas
 
-- [ ] **Tarefa 1 — criar AuthService com validação de domínio e requestMagicLink**
+- [x] **Tarefa 1 — criar AuthService com validação de domínio e requestMagicLink**
   - Cobre: CA1
   - Teste primeiro: unit test `.spec.ts` que prova que `requestMagicLink('aluno@utfpr.edu.br')` chama o BaaS e que `requestMagicLink('x@gmail.com')` lança erro de domínio não permitido (RED antes do código).
   - Arquivos previstos: `apps/web/src/app/core/services/auth.service.ts`, `apps/web/src/app/core/services/auth.service.spec.ts`
