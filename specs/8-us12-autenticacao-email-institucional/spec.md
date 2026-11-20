@@ -1,6 +1,6 @@
 ---
 issue: 8
-status: aprovada   # rascunho | aprovada
+status: rascunho   # rascunho | aprovada
 ---
 
 # US12 — autenticação por e-mail institucional
