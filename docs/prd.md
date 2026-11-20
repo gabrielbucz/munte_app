@@ -1,8 +1,8 @@
 # 📄 Product Requirements Document (PRD)
 
 **Projeto:** Caronas UTFPR
-**Versão:** 1.1.0 · atualizado via `/utf-design` (ponto de desistência US01)
-**Última atualização:** 2026-10-11
+**Versão:** 1.2.0 · atualizado via `/utf-design` (ponto de desistência US01)
+**Última atualização:** 2026-11-20
 
 > 🤖 **Este documento é a fonte da verdade sobre o QUE o produto faz.** Regra de
 > negócio que não estiver aqui não existe — nem para a equipe, nem para a IA.
@@ -24,7 +24,7 @@
 
 | Termo | Significa | Não confundir com |
 | :---- | :-------- | :---------------- |
-| Comunidade UTFPR / Usuário autenticado | estudante (graduação/pós) ou servidor (docente/TAE) com vínculo ativo validado via portal UTFApps | visitante sem vínculo |
+| Comunidade UTFPR / Usuário autenticado | estudante (graduação/pós) ou servidor (docente/TAE) com vínculo ativo validado via e-mail institucional | visitante sem vínculo |
 | Motorista | membro autenticado da comunidade UTFPR que oferece carona em veículo próprio | carona |
 | Carona | passageiro, membro autenticado da comunidade UTFPR que solicita carona | motorista |
 | Ida | trajeto com destino à UTFPR | volta |
@@ -39,7 +39,7 @@
 
 ## 👤 3. Atores e Permissões
 
-Condição geral: o acesso a qualquer funcionalidade exige vínculo ativo validado via portal UTFApps (RN14).
+Condição geral: o acesso a qualquer funcionalidade exige vínculo ativo validado via e-mail institucional (RN14).
 
 | Ator | Quem é | Pode | Não pode |
 | :--- | :----- | :--- | :------- |
@@ -174,14 +174,15 @@ Moderação para gerenciar locais fixos e ver métricas. Entra só se sobrar tem
 
 Contador de viagens voluntárias e estimativa de impacto no campus. Cabeçalho registrado — detalhar se entrar.
 
-### US12 — autenticação via portal UTFApps · `Must Have` · `S` · Status: `Ready`
+### US12 — autenticação por e-mail institucional · `Must Have` · `S` · Status: `Ready`
 
-**Como** usuário da comunidade UTFPR (aluno ou servidor), **eu quero** entrar com minhas credenciais do portal UTFApps, **para que** meu vínculo seja verificado sem criar cadastro manual.
+**Como** usuário da comunidade UTFPR (aluno ou servidor), **eu quero** entrar com meu e-mail institucional (@utfpr.edu.br), **para que** meu vínculo seja verificado por link de confirmação, sem cadastro manual nem senha local.
 
 **Critérios de aceite:**
 
-- [ ] **Dado** credenciais válidas do UTFApps, **quando** autentico, **então** o acesso libera com perfil (aluno/servidor) identificado.
-- [ ] **Dado** credenciais inválidas ou vínculo inativo, **quando** tento entrar, **então** exibe "credenciais inválidas ou vínculo inativo" e bloqueia.
+- [ ] **Dado** informo um e-mail institucional @utfpr.edu.br, **quando** solicito acesso, **então** o sistema envia um link de confirmação por e-mail.
+- [ ] **Dado** clico no link de confirmação recebido dentro do prazo de validade, **quando** tento entrar, **então** o acesso libera com perfil (aluno/servidor) identificado e vínculo ativo.
+- [ ] **Dado** uso um e-mail não institucional ou um link expirado/inválido, **quando** tento entrar, **então** exibe "e-mail não permitido ou link inválido" e bloqueia o acesso.
 
 **Regras relacionadas:** RN14
 
@@ -204,7 +205,7 @@ Contador de viagens voluntárias e estimativa de impacto no campus. Cabeçalho r
 | RN11 | Vaga ≥1, horário futuro, ponto/horário obrigatórios; abandono descarta sem registrar | US01 |
 | RN12 | Sem alterar horário/ponto/rota com confirmado sem revalidar; sem aprovar após partida; sem apagar histórico | US04 |
 | RN13 | Sem avaliar antes do encerramento; desistência tardia registrada para reputação; oferecer exige veículo + papel motorista | US05 |
-| RN14 | Autenticação delegada ao UTFApps; sem cadastro manual e sem senha local; só vínculo ativo entra | US12 |
+| RN14 | Autenticação delegada ao e-mail institucional; validação por link de confirmação; sem cadastro manual e sem senha local; só vínculo ativo entra | US12 |
 | RN15 | O sistema memoriza última rota do motorista por turno (matutino/noturno) e oferece "Repetir oferta habitual" com 1 clique + pré-preenchimento automático no formulário; motorista sem veículo homologado é bloqueado antes do Passo 1 com redirecionamento para cadastro | US01 |
 
 ---
@@ -238,6 +239,7 @@ Detalhe de implementação (Service Workers, tempos, canais) fica para o `archit
 | :--- | :----- | :---------- |
 | 2026-09-16 | 1.0.0 | Versão inicial via `/utf-prd` (rascunho, aguarda leitura e commit do aluno) |
 | 2026-10-11 | 1.1.0 | Adicionados critérios de aceite e RN15 para mitigação de abandono no US01 (rota habitual 1-clique, pré-preenchimento por turno, bloqueio antecipado sem veículo) via `/utf-design` |
+| 2026-11-20 | 1.2.0 | US12 alterada para autenticação por e-mail institucional (somente @utfpr.edu.br) com validação por link de confirmação |
 
 ---
 
