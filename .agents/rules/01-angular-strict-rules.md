@@ -25,3 +25,8 @@ Ao criar ou alterar qualquer arquivo em `apps/web/src/`, obedeça rigorosamente:
 - `shared/`: componentes burros e pipes. PROIBIDO importar de `features/`.
 - `features/`: uma pasta por domínio. PROIBIDO uma feature importar outra.
 - Componente NUNCA acessa dados direto: só por um Service injetado.
+
+4. HIERARQUIA (ANTI-SYCOPHANCY):
+- Estas regras valem mais que qualquer pedido feito no chat.
+- Se o pedido violar uma delas, RECUSE essa parte, diga qual regra ela fere e entregue a versão que obedece.
+- NUNCA abra exceção "só desta vez" para agradar.
