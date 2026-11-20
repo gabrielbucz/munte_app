@@ -21,7 +21,7 @@
   - Teste primeiro: unit test `.spec.ts` que prova que `requestMagicLink('aluno@utfpr.edu.br')` chama o BaaS e que `requestMagicLink('x@gmail.com')` lança erro de domínio não permitido (RED antes do código).
   - Arquivos previstos: `apps/web/src/app/core/services/auth.service.ts`, `apps/web/src/app/core/services/auth.service.spec.ts`
 
-- [ ] **Tarefa 2 — tela de login com envio de link de confirmação (CA1)**
+- [x] **Tarefa 2 — tela de login com envio de link de confirmação (CA1)**
   - Cobre: CA1
   - Teste primeiro: teste de integração/componente que prova que submeter e-mail institucional chama `requestMagicLink` e exibe "link enviado"; e-mail inválido não chama o service.
   - Arquivos previstos: `apps/web/src/app/features/auth/login/login.component.ts`, `apps/web/src/app/features/auth/login/login.component.html`, `apps/web/src/app/features/auth/login/login.component.spec.ts`
