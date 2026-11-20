@@ -36,7 +36,7 @@
   - Teste primeiro: unit test do guard que prova `true` com sessão ativa e `redirectToLogin` sem sessão (RED).
   - Arquivos previstos: `apps/web/src/app/core/guards/auth.guard.ts`, `apps/web/src/app/core/guards/auth.guard.spec.ts`
 
-- [ ] **Tarefa 5 — bloqueio e mensagem de erro para e-mail não institucional ou link expirado/inválido (CA3)**
+- [x] **Tarefa 5 — bloqueio e mensagem de erro para e-mail não institucional ou link expirado/inválido (CA3)**
   - Cobre: CA3
   - Teste primeiro: teste que prova exibição de "e-mail não permitido ou link inválido" e bloqueio de acesso para domínio fora de `@utfpr.edu.br` e token expirado (RED).
   - Arquivos previstos: `apps/web/src/app/core/services/auth.service.ts`, `apps/web/src/app/features/auth/login/login.component.ts`, `apps/web/src/app/features/auth/auth-callback/auth-callback.component.ts`
