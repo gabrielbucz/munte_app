@@ -101,5 +101,26 @@ describe('AuthService (CA1 — link de confirmação por e-mail institucional)',
         type: 'email',
       });
     });
+
+    it('deve propagar erro quando email e token são inválidos ou expirados', async () => {
+      mockVerifyOtp.mockResolvedValue({
+        data: null,
+        error: { message: 'OTP expired' },
+      });
+
+      await expect(
+        service.verifyOtp({
+          email: 'aluno@utfpr.edu.br',
+          token: '123456',
+          type: 'email',
+        })
+      ).resolves.toEqual({ data: null, error: { message: 'OTP expired' } });
+
+      expect(mockVerifyOtp).toHaveBeenCalledWith({
+        email: 'aluno@utfpr.edu.br',
+        token: '123456',
+        type: 'email',
+      });
+    });
   });
 });

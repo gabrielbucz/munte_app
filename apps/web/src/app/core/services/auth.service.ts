@@ -1,5 +1,6 @@
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import type { VerifyOtpParams } from '@supabase/auth-js';
 
 const supabaseUrl = 'https://placeholder.supabase.co';
 const supabaseKey = 'placeholder-key';
@@ -29,7 +30,7 @@ export class AuthService {
     return this.supabase.auth.onAuthStateChange(callback);
   }
 
-  async verifyOtp(params: { email?: string; token?: string; token_hash?: string; type: 'email' }) {
+  async verifyOtp(params: VerifyOtpParams) {
     return this.supabase.auth.verifyOtp(params);
   }
 }
