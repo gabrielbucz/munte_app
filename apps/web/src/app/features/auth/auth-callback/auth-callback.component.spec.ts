@@ -47,4 +47,14 @@ describe('AuthCallbackComponent (CA2 — validação do link de confirmação)',
     expect(component.sessaoEstabelecida).toBe(false);
     expect(component.erro).toContain('link inválido');
   });
+
+  it('não deve estabelecer sessão quando o token já foi utilizado', async () => {
+    authService.verifyOtp.mockResolvedValue({ data: null, error: { message: 'already_used' } });
+    authService.getSession.mockResolvedValue({ data: { session: null }, error: null });
+
+    await component.validateToken('token-ja-utilizado');
+
+    expect(component.sessaoEstabelecida).toBe(false);
+    expect(component.erro).toContain('link inválido');
+  });
 });
