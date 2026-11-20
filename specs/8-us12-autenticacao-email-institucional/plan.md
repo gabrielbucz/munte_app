@@ -31,7 +31,7 @@
   - Teste primeiro: unit test que prova que um token válido dentro do prazo de 1h estabelece sessão (`getSession()` autenticado) e token expirado/inválido não estabelece (RED).
   - Arquivos previstos: `apps/web/src/app/features/auth/auth-callback/auth-callback.component.ts`, rotas em `app.routes.ts`
 
-- [ ] **Tarefa 4 — authGuard que bloqueia acesso sem sessão (CA2)**
+- [x] **Tarefa 4 — authGuard que bloqueia acesso sem sessão (CA2)**
   - Cobre: CA2
   - Teste primeiro: unit test do guard que prova `true` com sessão ativa e `redirectToLogin` sem sessão (RED).
   - Arquivos previstos: `apps/web/src/app/core/guards/auth.guard.ts`, `apps/web/src/app/core/guards/auth.guard.spec.ts`
