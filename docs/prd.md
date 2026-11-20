@@ -1,7 +1,7 @@
 # 📄 Product Requirements Document (PRD)
 
 **Projeto:** Caronas UTFPR
-**Versão:** 1.2.0 · divisão documental da US12 em US12 e US13
+**Versão:** 1.3.0 · escopo restrito a alunos de graduação
 **Última atualização:** 2026-11-20
 
 > 🤖 **Este documento é a fonte da verdade sobre o QUE o produto faz.** Regra de
@@ -12,7 +12,7 @@
 
 ## 🎯 1. Visão Geral e Objetivo
 
-**O problema:** alunos (e servidores) que precisam ir e voltar da faculdade têm dificuldade de se conectar com motoristas da comunidade que fazem rotas compatíveis.
+**O problema:** alunos de graduação que precisam ir e voltar da faculdade têm dificuldade de se conectar com motoristas da comunidade que fazem rotas compatíveis.
 
 **A solução:** app para conectar membros da comunidade UTFPR que oferecem carona (motoristas) com membros que precisam de carona (caronas/passageiros) até a faculdade, onde o ponto na faculdade é sempre o mesmo e o que muda é o ponto no bairro onde a pessoa é pega/deixada. O motorista informa ida e/ou volta com ponto de referência, horário e vagas; o carona busca por bairro e horário e solicita vaga; o motorista aceita ou recusa.
 
@@ -24,7 +24,7 @@
 
 | Termo | Significa | Não confundir com |
 | :---- | :-------- | :---------------- |
-| Comunidade UTFPR / Usuário autenticado | estudante (graduação/pós) ou servidor (docente/TAE) com vínculo ativo validado via e-mail institucional | visitante sem vínculo |
+| Comunidade UTFPR / Usuário autenticado | estudante de graduação com vínculo ativo validado via e-mail institucional @alunos.utfpr.edu.br | visitante sem vínculo |
 | Motorista | membro autenticado da comunidade UTFPR que oferece carona em veículo próprio | carona |
 | Carona | passageiro, membro autenticado da comunidade UTFPR que solicita carona | motorista |
 | Ida | trajeto com destino à UTFPR | volta |
@@ -43,8 +43,8 @@ Condição geral: o acesso a qualquer funcionalidade exige vínculo ativo valida
 
 | Ator | Quem é | Pode | Não pode |
 | :--- | :----- | :--- | :------- |
-| Motorista | membro autenticado da comunidade UTFPR (aluno ou servidor) que disponibiliza vagas gratuitas em veículo próprio | informar só ida, só volta, os dois ou nada por enquanto; em cada trajeto definir ponto de referência, horário e vagas; aceitar ou recusar solicitação; cancelar avisando os caronas | exceder vagas; solicitar a própria viagem; alterar horário/ponto/rota com passageiro confirmado sem revalidar; ver contato do carona antes do aceite; aprovar após o horário de partida; apagar histórico de viagens concluídas; cobrar qualquer valor |
-| Carona | membro autenticado da comunidade UTFPR (aluno ou servidor) que solicita vaga | filtrar por bairro e horário; ver quantos motoristas passam por ponto/horário; solicitar vaga (única se ida+volta mesmo ponto, separada se pontos diferentes); cancelar avisando o motorista | alterar detalhes definidos pelo motorista; envios duplicados ou reservas com horário sobreposto; gerenciar solicitações de outros caronas; avaliar antes do encerramento do trajeto; cancelar a poucos minutos da partida sem registro de desistência tardia para reputação; oferecer vagas sem cadastrar veículo e assumir papel de motorista |
+| Motorista | membro autenticado da comunidade UTFPR que disponibiliza vagas gratuitas em veículo próprio | informar só ida, só volta, os dois ou nada por enquanto; em cada trajeto definir ponto de referência, horário e vagas; aceitar ou recusar solicitação; cancelar avisando os caronas | exceder vagas; solicitar a própria viagem; alterar horário/ponto/rota com passageiro confirmado sem revalidar; ver contato do carona antes do aceite; aprovar após o horário de partida; apagar histórico de viagens concluídas; cobrar qualquer valor |
+| Carona | membro autenticado da comunidade UTFPR que solicita vaga | filtrar por bairro e horário; ver quantos motoristas passam por ponto/horário; solicitar vaga (única se ida+volta mesmo ponto, separada se pontos diferentes); cancelar avisando o motorista | alterar detalhes definidos pelo motorista; envios duplicados ou reservas com horário sobreposto; gerenciar solicitações de outros caronas; avaliar antes do encerramento do trajeto; cancelar a poucos minutos da partida sem registro de desistência tardia para reputação; oferecer vagas sem cadastrar veículo e assumir papel de motorista |
 
 Sem administrador neste PRD — administração vai para Fora de Escopo (US10 `Could` só se sobrar tempo).
 
@@ -176,12 +176,12 @@ Contador de viagens voluntárias e estimativa de impacto no campus. Cabeçalho r
 
 ### US12 — autenticação por e-mail institucional · `Must Have` · `S` · Status: `Ready`
 
-**Como** usuário da comunidade UTFPR (aluno ou servidor), **eu quero** entrar com meu e-mail institucional (@utfpr.edu.br), **para que** meu vínculo seja verificado por link de confirmação, sem cadastro manual nem senha local.
+**Como** aluno de graduação da UTFPR, **eu quero** entrar com meu e-mail institucional (@alunos.utfpr.edu.br), **para que** meu vínculo seja verificado por link de confirmação, sem cadastro manual nem senha local.
 
 **Critérios de aceite:**
 
-- [ ] **CA1 — Dado** informo um e-mail institucional @utfpr.edu.br, **quando** solicito acesso, **então** o sistema envia um link de confirmação por e-mail.
-- [ ] **CA2 — Dado** clico no link de confirmação recebido dentro do prazo de validade (1 hora), **quando** tento entrar, **então** o acesso libera com perfil (aluno/servidor) identificado e vínculo ativo.
+- [ ] **CA1 — Dado** informo um e-mail institucional @alunos.utfpr.edu.br, **quando** solicito acesso, **então** o sistema envia um link de confirmação por e-mail.
+- [ ] **CA2 — Dado** clico no link de confirmação recebido dentro do prazo de validade (1 hora), **quando** tento entrar, **então** o acesso libera com vínculo ativo.
 - [ ] **CA3 — Dado** uso um e-mail não institucional ou um link expirado/inválido, **quando** tento entrar, **então** exibe "e-mail não permitido ou link inválido" e bloqueia o acesso.
 - [ ] **CA4 — Dado** que o usuário solicitou um link de confirmação e não o utilizou dentro do prazo de validade, **quando** tentar autenticar com esse link expirado, **então** o acesso será bloqueado e o usuário poderá solicitar um novo link.
 - [ ] **CA6 — Dado** que ocorre uma falha de rede durante o envio do e-mail de confirmação, **quando** o usuário solicitar acesso, **então** o sistema deverá informar o erro e permitir uma nova tentativa.
@@ -195,7 +195,7 @@ Contador de viagens voluntárias e estimativa de impacto no campus. Cabeçalho r
 
 ### US13 — recuperação de sessão de autenticação · `Must Have` · `S` · Status: `Ready`
 
-**Como** usuário da comunidade UTFPR (aluno ou servidor), **eu quero** autenticar novamente por link de confirmação quando minha sessão expirar e eu tentar acessar uma rota protegida, **para que** eu possa recuperar o acesso ao aplicativo sem ficar bloqueado.
+**Como** aluno de graduação da UTFPR, **eu quero** autenticar novamente por link de confirmação quando minha sessão expirar e eu tentar acessar uma rota protegida, **para que** eu possa recuperar o acesso ao aplicativo sem ficar bloqueado.
 
 **Critérios de aceite:**
 
@@ -231,6 +231,8 @@ Contador de viagens voluntárias e estimativa de impacto no campus. Cabeçalho r
 - GPS em tempo real — foco em rotas e pontos estáticos.
 - Pontos personalizados — valem só os 3 fixos por bairro.
 - Administração/moderação — fora agora (US10 `Could` só se sobrar tempo).
+- Servidores (docentes/TAE) — o app é restrito a alunos.
+- Pós-graduação (mestrado/doutorado) — não é público-alvo, por frequentar o campus com menos regularidade. Como o acesso é validado apenas pelo link enviado ao e-mail institucional @alunos.utfpr.edu.br, não há bloqueio por nível de curso.
 
 ---
 
@@ -255,6 +257,7 @@ Detalhe de implementação (Service Workers, tempos, canais) fica para o `archit
 | 2026-09-16 | 1.0.0 | Versão inicial via `/utf-prd` (rascunho, aguarda leitura e commit do aluno) |
 | 2026-10-11 | 1.1.0 | Adicionados critérios de aceite e RN15 para mitigação de abandono no US01 (rota habitual 1-clique, pré-preenchimento por turno, bloqueio antecipado sem veículo) via `/utf-design` |
 | 2026-11-20 | 1.2.0 | Divisão da US12 em US12 (acesso inicial: CA1, CA2, CA3, CA4, CA6, CA7, CA8, CA9) e US13 (recuperação de sessão: CA5). Atualização da RN14 para autenticação por e-mail institucional. |
+| 2026-11-20 | 1.3.0 | Escopo restrito a alunos de graduação: servidores e pós-graduação vão para Fora de Escopo; domínio aceito passa a ser @alunos.utfpr.edu.br (US12, CA1); CA2 deixa de identificar perfil aluno/servidor. |
 
 ---
 
