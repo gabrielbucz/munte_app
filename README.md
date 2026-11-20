@@ -21,7 +21,7 @@ Plataforma voluntária e sem custos para conectar alunos de graduação da UTFPR
 - 🧑‍✈️ **Motorista:** informa ida e/ou volta, ponto de referência, horário e vagas, e aceita ou recusa solicitações.
 - 🙋 **Carona:** filtra por bairro e horário, solicita vaga e acompanha tudo em Minhas Caronas.
 - 🔔 **Sino de notificações:** avisa novas solicitações e respostas.
-- 🔐 **Acesso:** login por e-mail institucional (@utfpr.edu.br) com link de confirmação, só com vínculo ativo.
+- 🔐 **Acesso:** login por e-mail institucional (@alunos.utfpr.edu.br) com link de confirmação, só com vínculo ativo.
 
 ## 👥 Autores
 
