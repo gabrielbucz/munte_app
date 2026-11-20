@@ -1,6 +1,6 @@
 ---
 issue: 8
-status: rascunho   # rascunho | aprovada
+status: aprovada   # rascunho | aprovada
 ---
 
 # US12 — autenticação por e-mail institucional
@@ -15,9 +15,9 @@ Usuários da comunidade UTFPR (alunos e servidores) precisam entrar no app de ca
 
 ## Critérios de aceite
 
-- [ ] **CA1 — Dado** informo um e-mail institucional @utfpr.edu.br, **quando** solicito acesso, **então** o sistema envia um link de confirmação por e-mail.
-- [ ] **CA2 — Dado** clico no link de confirmação recebido dentro do prazo de validade (1 hora), **quando** tento entrar, **então** o acesso libera com perfil (aluno/servidor) identificado e vínculo ativo.
-- [ ] **CA3 — Dado** uso um e-mail não institucional ou um link expirado/inválido, **quando** tento entrar, **então** exibe "e-mail não permitido ou link inválido" e bloqueia o acesso.
+- [x] **CA1 — Dado** informo um e-mail institucional @utfpr.edu.br, **quando** solicito acesso, **então** o sistema envia um link de confirmação por e-mail.
+- [x] **CA2 — Dado** clico no link de confirmação recebido dentro do prazo de validade (1 hora), **quando** tento entrar, **então** o acesso libera com perfil (aluno/servidor) identificado e vínculo ativo.
+- [x] **CA3 — Dado** uso um e-mail não institucional ou um link expirado/inválido, **quando** tento entrar, **então** exibe "e-mail não permitido ou link inválido" e bloqueia o acesso.
 
 ## Fora de escopo
 
