@@ -16,7 +16,7 @@
 
 ## 💡 Sobre o projeto
 
-Plataforma voluntária e sem custos para conectar alunos e servidores da UTFPR que oferecem e buscam caronas diárias para o campus, organizadas por **23 bairros** e **3 pontos de referência fixos** por região.
+Plataforma voluntária e sem custos para conectar alunos de graduação da UTFPR que oferecem e buscam caronas diárias para o campus, organizadas por **23 bairros** e **3 pontos de referência fixos** por região.
 
 - 🧑‍✈️ **Motorista:** informa ida e/ou volta, ponto de referência, horário e vagas, e aceita ou recusa solicitações.
 - 🙋 **Carona:** filtra por bairro e horário, solicita vaga e acompanha tudo em Minhas Caronas.

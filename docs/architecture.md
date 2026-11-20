@@ -1,9 +1,9 @@
 🏗️ Architecture Decision Record (ADR) — Caronas UTFPR
 Projeto: Caronas UTFPR
 
-Versão: 1.1.0 · atualização da decisão de estilização
+Versão: 1.1.1 · remoção do campo role (escopo restrito a alunos)
 
-Última atualização: 2026-11-19
+Última atualização: 2026-11-20
 🤖 Este documento é a régua técnica do semestre. O /utf-setup, os implementadores e os revisores consultam aqui. Dependência que não estiver aqui não entra no projeto.
 
 1. Frontend — Angular 20+ (Standalone)
@@ -84,7 +84,7 @@ shared/*    →  NÃO importa  core/*  nem  features/*
 core/*      →  NÃO importa  features/*  nem  shared/*
 5. Glossário Técnico — PRD (PT) → Entidades (EN)
 Termo (PRD)	Entidade (EN)	Atributos Principais
-Comunidade UTFPR / Usuário autenticado	User	id, name, email, role: 'student' | 'staff', utfappsId, avatarUrl?
+Comunidade UTFPR / Usuário autenticado	User	id, name, email, utfappsId, avatarUrl?
 Motorista	Driver (extends User)	userId, vehicleId, rating?, totalRides?
 Carona (passageiro)	Passenger (extends User)	userId, preferredNeighborhood?
 Veículo	Vehicle	id, driverId, plate, model, color, seats, isActive
@@ -109,7 +109,6 @@ erDiagram
         string id PK
         string name
         string email
-        string role
         string utfappsId
         string avatarUrl
     }
@@ -218,6 +217,7 @@ Este documento declara explicitamente as cinco coisas que o setup exige:
 Data	Versão	O que mudou
 2026-10-11	1.0.0	Versão inicial via /utf-architecture — todas as decisões da Fase 0 registradas
 2026-11-19	1.1.0	Substituição do Bootstrap 5 por Tailwind CSS v4; correção da formatação Markdown e explicitação da integração com Angular
+2026-11-20	1.1.1	Remoção do campo role de User (glossário e diagrama ER), pois o PRD 1.3.0 restringe o app a alunos de graduação
 
 
 Próximo passo: /utf-setup — o aluno lê fora do chat; o commit é dele.
