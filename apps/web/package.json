@@ -6,8 +6,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "npx vitest run",
-    "test:ci": "npx vitest run",
+    "test": "ng test --watch=false",
+    "test:ci": "ng test --watch=false",
     "lint": "eslint ."
   },
   "private": true,
