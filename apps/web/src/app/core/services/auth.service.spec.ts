@@ -2,11 +2,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AuthService } from './auth.service';
 
 const mockSignInWithOtp = vi.fn();
+const mockVerifyOtp = vi.fn();
 
 vi.mock('@supabase/supabase-js', () => ({
   createClient: vi.fn(() => ({
     auth: {
       signInWithOtp: mockSignInWithOtp,
+      verifyOtp: mockVerifyOtp,
     },
   })),
 }));
@@ -57,6 +59,47 @@ describe('AuthService (CA1 — link de confirmação por e-mail institucional)',
 
     expect(mockSignInWithOtp).toHaveBeenCalledWith({
       email: 'aluno@utfpr.edu.br',
+    });
+  });
+
+  describe('verifyOtp (CA2 — validação do token de confirmação)', () => {
+    it('deve chamar verifyOtp com token_hash e type email', async () => {
+      mockVerifyOtp.mockResolvedValue({ data: { user: { id: '123' } }, error: null });
+
+      await service.verifyOtp({ token_hash: 'hash-valido', type: 'email' });
+
+      expect(mockVerifyOtp).toHaveBeenCalledWith({
+        token_hash: 'hash-valido',
+        type: 'email',
+      });
+    });
+
+    it('deve chamar verifyOtp com email, token e type email (OTP de 6 dígitos)', async () => {
+      mockVerifyOtp.mockResolvedValue({ data: { user: { id: '123' } }, error: null });
+
+      await service.verifyOtp({ email: 'aluno@utfpr.edu.br', token: '123456', type: 'email' });
+
+      expect(mockVerifyOtp).toHaveBeenCalledWith({
+        email: 'aluno@utfpr.edu.br',
+        token: '123456',
+        type: 'email',
+      });
+    });
+
+    it('deve propagar erro quando o token_hash é inválido ou expirado', async () => {
+      mockVerifyOtp.mockResolvedValue({
+        data: null,
+        error: { message: 'OTP expired' },
+      });
+
+      await expect(
+        service.verifyOtp({ token_hash: 'hash-expirado', type: 'email' })
+      ).resolves.toEqual({ data: null, error: { message: 'OTP expired' } });
+
+      expect(mockVerifyOtp).toHaveBeenCalledWith({
+        token_hash: 'hash-expirado',
+        type: 'email',
+      });
     });
   });
 });

@@ -1,3 +1,4 @@
+
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 const supabaseUrl = 'https://placeholder.supabase.co';
@@ -26,5 +27,9 @@ export class AuthService {
 
   onAuthStateChange(callback: (event: string, session: any) => void) {
     return this.supabase.auth.onAuthStateChange(callback);
+  }
+
+  async verifyOtp(params: { email?: string; token?: string; token_hash?: string; type: 'email' }) {
+    return this.supabase.auth.verifyOtp(params);
   }
 }

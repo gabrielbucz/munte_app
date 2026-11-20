@@ -1,6 +1,5 @@
 import '@angular/compiler';
 
-import { FormBuilder } from '@angular/forms';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AuthCallbackComponent } from './auth-callback.component';
 import { AuthService } from '../../../core/services/auth.service';
@@ -16,17 +15,19 @@ describe('AuthCallbackComponent (CA2 — validação do link de confirmação)',
 
   beforeEach(() => {
     authService = new AuthServiceMock();
-    component = new AuthCallbackComponent(authService);
+    const route = { snapshot: { queryParams: {} } };
+    component = new AuthCallbackComponent(route as any, authService);
   });
 
-  it('deve estabelecer sessão quando o token de confirmação é válido dentro do prazo', async () => {
+  it('deve estabelecer sessão quando o token_hash é válido dentro do prazo', async () => {
+    component.route.snapshot.queryParams = { token_hash: 'token-hash-valido' };
     authService.verifyOtp.mockResolvedValue({ data: { user: { id: '123' } }, error: null });
     authService.getSession.mockResolvedValue({ data: { session: { access_token: 'token-valido' } }, error: null });
 
-    await component.validateToken('token-valido');
+    await component.validateToken();
 
     expect(authService.verifyOtp).toHaveBeenCalledWith({
-      token: 'token-valido',
+      token_hash: 'token-hash-valido',
       type: 'email',
     });
     expect(authService.getSession).toHaveBeenCalled();
@@ -34,25 +35,37 @@ describe('AuthCallbackComponent (CA2 — validação do link de confirmação)',
     expect(component.erro).toBe('');
   });
 
-  it('não deve estabelecer sessão quando o token é expirado ou inválido', async () => {
+  it('não deve estabelecer sessão quando não há token_hash na URL', async () => {
+    component.route.snapshot.queryParams = {};
+
+    await component.validateToken();
+
+    expect(authService.verifyOtp).not.toHaveBeenCalled();
+    expect(component.sessaoEstabelecida).toBe(false);
+    expect(component.erro).toContain('link inválido');
+  });
+
+  it('não deve estabelecer sessão quando o token_hash é expirado ou inválido', async () => {
+    component.route.snapshot.queryParams = { token_hash: 'token-hash-expirado' };
     authService.verifyOtp.mockResolvedValue({ data: null, error: { message: 'expired' } });
     authService.getSession.mockResolvedValue({ data: { session: null }, error: null });
 
-    await component.validateToken('token-expirado');
+    await component.validateToken();
 
     expect(authService.verifyOtp).toHaveBeenCalledWith({
-      token: 'token-expirado',
+      token_hash: 'token-hash-expirado',
       type: 'email',
     });
     expect(component.sessaoEstabelecida).toBe(false);
     expect(component.erro).toContain('link inválido');
   });
 
-  it('não deve estabelecer sessão quando o token já foi utilizado', async () => {
+  it('não deve estabelecer sessão quando o token_hash já foi utilizado', async () => {
+    component.route.snapshot.queryParams = { token_hash: 'token-hash-ja-utilizado' };
     authService.verifyOtp.mockResolvedValue({ data: null, error: { message: 'already_used' } });
     authService.getSession.mockResolvedValue({ data: { session: null }, error: null });
 
-    await component.validateToken('token-ja-utilizado');
+    await component.validateToken();
 
     expect(component.sessaoEstabelecida).toBe(false);
     expect(component.erro).toContain('link inválido');
