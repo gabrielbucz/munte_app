@@ -26,7 +26,7 @@
   - Teste primeiro: teste de integração/componente que prova que submeter e-mail institucional chama `requestMagicLink` e exibe "link enviado"; e-mail inválido não chama o service.
   - Arquivos previstos: `apps/web/src/app/features/auth/login/login.component.ts`, `apps/web/src/app/features/auth/login/login.component.html`, `apps/web/src/app/features/auth/login/login.component.spec.ts`
 
-- [ ] **Tarefa 3 — rota/callback de validação do link de confirmação (CA2)**
+- [x] **Tarefa 3 — rota/callback de validação do link de confirmação (CA2)**
   - Cobre: CA2
   - Teste primeiro: unit test que prova que um token válido dentro do prazo de 1h estabelece sessão (`getSession()` autenticado) e token expirado/inválido não estabelece (RED).
   - Arquivos previstos: `apps/web/src/app/features/auth/auth-callback/auth-callback.component.ts`, rotas em `app.routes.ts`
