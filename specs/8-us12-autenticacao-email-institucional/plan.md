@@ -53,7 +53,7 @@
   - Teste primeiro: `auth.service.spec.ts` com `provideHttpClientTesting()` prova que `solicitarLink('fulano@alunos.utfpr.edu.br')` faz `POST /magicLinks` com e-mail, token e `expiresAt` = agora + 1h e devolve o link do callback; e que `@utfpr.edu.br`, `@gmail.com` e `@alunos.utfpr.edu.br.x.com` são rejeitados **sem** requisição. Falha antes porque o service não existe.
   - Arquivos previstos: `core/services/auth.service.{ts,spec.ts}`, `core/config/api.config.ts`, `app.config.ts`, `apps/api/db.json`
 
-- [ ] **Tarefa 3 — criar a tela Entrar que solicita o link e exibe o "E-mail simulado"**
+- [x] **Tarefa 3 — criar a tela Entrar que solicita o link e exibe o "E-mail simulado"**
   - Cobre: CA1
   - Teste primeiro: `login.spec.ts` prova que, ao submeter um e-mail `@alunos.utfpr.edu.br`, a tela chama `solicitarLink` e exibe o quadro "E-mail simulado" com o link clicável; e que o botão fica desabilitado com o campo vazio ou fora do formato de e-mail. Falha antes porque a tela e a rota `/entrar` não existem.
   - Arquivos previstos: `features/auth/login/login.{ts,html,spec.ts}`, `app.routes.ts`
