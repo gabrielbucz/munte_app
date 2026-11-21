@@ -43,7 +43,7 @@
 
 ## Tarefas
 
-- [ ] **Tarefa 1 — montar a casca com cabeçalho, palco central e rodapé**
+- [x] **Tarefa 1 — montar a casca com cabeçalho, palco central e rodapé**
   - Cobre: CA7
   - Teste primeiro: `app.spec.ts` (atualizado) prova que o `App` renderiza `app-header`, depois um `<main>` contendo o componente da rota ativa (rota de teste via `provideRouter`), depois `app-footer`; `header.spec.ts` prova que a barra superior mostra o link "Entrar". Falha antes porque o `App` ainda é a vitrine dos tokens, sem `<router-outlet>`.
   - Arquivos previstos: `apps/web/src/app/app.ts`, `app.html`, `app.css` (removido), `app.spec.ts`, `shared/components/header/header.{ts,html,spec.ts}`, `shared/components/footer/footer.{ts,html,spec.ts}`

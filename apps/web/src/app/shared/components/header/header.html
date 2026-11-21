@@ -1,0 +1,22 @@
+<header class="border-b border-borda bg-superficie">
+  <div class="flex items-center justify-between gap-4 px-4 py-3 md:px-8">
+    <a routerLink="/" class="text-xl font-semibold text-primaria">Munte-app</a>
+
+    <nav aria-label="Navegação principal">
+      <ul class="flex items-center gap-4">
+        @for (link of links; track link.caminho) {
+          <li>
+            <a
+              [routerLink]="link.caminho"
+              routerLinkActive="text-primaria"
+              class="text-sm font-semibold text-texto-suave hover:text-primaria-hover
+                     focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primaria/25"
+            >
+              {{ link.rotulo }}
+            </a>
+          </li>
+        }
+      </ul>
+    </nav>
+  </div>
+</header>

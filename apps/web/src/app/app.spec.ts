@@ -1,24 +1,35 @@
+import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { Router, provideRouter } from '@angular/router';
 import { App } from './app';
 
-describe('App', () => {
+@Component({
+  selector: 'app-tela-teste',
+  template: '<p>Conteúdo da tela de teste</p>',
+})
+class TelaTeste {}
+
+describe('App (App Shell)', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App],
+      providers: [provideRouter([{ path: 'tela-teste', component: TelaTeste }])],
     }).compileComponents();
   });
 
-  it('should create the app', () => {
+  it('CA7: renderiza a tela da rota ativa no palco central, entre o cabeçalho e o rodapé', async () => {
     const fixture = TestBed.createComponent(App);
-    const app = fixture.componentInstance;
-    expect(app).toBeTruthy();
-  });
-
-  it('should render title', async () => {
-    const fixture = TestBed.createComponent(App); // Alterado de AppComponent para App
+    await TestBed.inject(Router).navigateByUrl('/tela-teste');
     fixture.detectChanges();
     await fixture.whenStable();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Tema do projeto');
+
+    const raiz = fixture.nativeElement as HTMLElement;
+    const filhos = Array.from(raiz.children).map((elemento) => elemento.tagName.toLowerCase());
+    expect(filhos).toEqual(['app-header', 'main', 'app-footer']);
+
+    const palco = raiz.querySelector('main');
+    expect(palco?.querySelector('app-tela-teste')?.textContent).toContain(
+      'Conteúdo da tela de teste',
+    );
   });
 });
