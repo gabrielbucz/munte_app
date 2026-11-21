@@ -1,0 +1,54 @@
+<div class="mx-auto flex w-full max-w-md flex-col gap-6">
+  <section class="flex flex-col gap-4 rounded-lg border border-borda bg-superficie p-6">
+    <h1 class="text-2xl font-semibold text-texto">Entrar</h1>
+    <p class="text-sm text-texto-suave">
+      Informe seu e-mail institucional para receber o link de confirmação.
+    </p>
+
+    <form [formGroup]="form" (ngSubmit)="solicitarLink()" class="flex flex-col gap-4">
+      <label for="email" class="flex flex-col gap-2 text-sm font-semibold text-texto">
+        E-mail institucional
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          autocomplete="email"
+          placeholder="fulano@alunos.utfpr.edu.br"
+          class="rounded-lg border border-borda bg-superficie px-3 py-2 text-base font-normal text-texto
+                 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primaria/25"
+        />
+      </label>
+
+      <button
+        type="submit"
+        [disabled]="form.invalid"
+        class="rounded-lg border border-primaria bg-primaria px-4 py-2 text-sm font-semibold text-white
+               hover:border-primaria-hover hover:bg-primaria-hover
+               focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primaria/25
+               disabled:cursor-not-allowed disabled:border-desabilitado disabled:bg-desabilitado
+               disabled:text-desabilitado-texto disabled:opacity-65"
+      >
+        Solicitar acesso
+      </button>
+    </form>
+  </section>
+
+  @if (linkDeConfirmacao(); as link) {
+    <!-- TODO #25: envio simulado — o link aparece neste quadro em vez de ir por e-mail;
+         sai quando o envio real pelo Supabase Auth entrar (Entrega 3). -->
+    <section
+      aria-labelledby="email-simulado-titulo"
+      class="flex flex-col gap-3 rounded-lg border border-borda bg-superficie p-6"
+    >
+      <h2 id="email-simulado-titulo" class="text-xl font-semibold text-texto">E-mail simulado</h2>
+      <p class="text-sm text-texto-suave">Clique no link abaixo para confirmar seu acesso:</p>
+      <a
+        [href]="link"
+        class="break-all text-sm font-semibold text-primaria hover:text-primaria-hover
+               focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primaria/25"
+      >
+        {{ link }}
+      </a>
+    </section>
+  }
+</div>

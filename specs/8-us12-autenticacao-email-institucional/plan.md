@@ -43,22 +43,22 @@
 
 ## Tarefas
 
-- [ ] **Tarefa 1 — montar a casca com cabeçalho, palco central e rodapé**
+- [x] **Tarefa 1 — montar a casca com cabeçalho, palco central e rodapé**
   - Cobre: CA7
   - Teste primeiro: `app.spec.ts` (atualizado) prova que o `App` renderiza `app-header`, depois um `<main>` contendo o componente da rota ativa (rota de teste via `provideRouter`), depois `app-footer`; `header.spec.ts` prova que a barra superior mostra o link "Entrar". Falha antes porque o `App` ainda é a vitrine dos tokens, sem `<router-outlet>`.
   - Arquivos previstos: `apps/web/src/app/app.ts`, `app.html`, `app.css` (removido), `app.spec.ts`, `shared/components/header/header.{ts,html,spec.ts}`, `shared/components/footer/footer.{ts,html,spec.ts}`
 
-- [ ] **Tarefa 2 — criar o AuthService que valida o domínio e grava o link no json-server**
+- [x] **Tarefa 2 — criar o AuthService que valida o domínio e grava o link no json-server**
   - Cobre: CA1 (passo técnico que destrava a Tarefa 3)
   - Teste primeiro: `auth.service.spec.ts` com `provideHttpClientTesting()` prova que `solicitarLink('fulano@alunos.utfpr.edu.br')` faz `POST /magicLinks` com e-mail, token e `expiresAt` = agora + 1h e devolve o link do callback; e que `@utfpr.edu.br`, `@gmail.com` e `@alunos.utfpr.edu.br.x.com` são rejeitados **sem** requisição. Falha antes porque o service não existe.
   - Arquivos previstos: `core/services/auth.service.{ts,spec.ts}`, `core/config/api.config.ts`, `app.config.ts`, `apps/api/db.json`
 
-- [ ] **Tarefa 3 — criar a tela Entrar que solicita o link e exibe o "E-mail simulado"**
+- [x] **Tarefa 3 — criar a tela Entrar que solicita o link e exibe o "E-mail simulado"**
   - Cobre: CA1
   - Teste primeiro: `login.spec.ts` prova que, ao submeter um e-mail `@alunos.utfpr.edu.br`, a tela chama `solicitarLink` e exibe o quadro "E-mail simulado" com o link clicável; e que o botão fica desabilitado com o campo vazio ou fora do formato de e-mail. Falha antes porque a tela e a rota `/entrar` não existem.
   - Arquivos previstos: `features/auth/login/login.{ts,html,spec.ts}`, `app.routes.ts`
 
-- [ ] **Tarefa 4 — abrir e fechar a gaveta de navegação no mobile**
+- [x] **Tarefa 4 — abrir e fechar a gaveta de navegação no mobile**
   - Cobre: CA8, CA9
   - Teste primeiro: `header.spec.ts` prova que, com a gaveta fechada, tocar no ☰ abre a gaveta e mostra o link "Entrar"; e que tocar em "Entrar" fecha a gaveta e navega para `/entrar`. Falha antes porque o ☰ e o signal `menuAberto` não existem.
   - Arquivos previstos: `shared/components/header/header.{ts,html,spec.ts}`
