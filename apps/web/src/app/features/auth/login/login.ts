@@ -1,6 +1,10 @@
 import { Component, ErrorHandler, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { AuthService, EmailNaoPermitidoError } from '../../../core/services/auth.service';
+import {
+  AuthService,
+  EmailNaoPermitidoError,
+  FalhaDeRedeError,
+} from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -20,10 +24,12 @@ export class Login {
 
   protected readonly linkDeConfirmacao = signal<string | null>(null);
   protected readonly emailNaoPermitido = signal(false);
+  protected readonly falhaDeRede = signal(false);
 
   protected solicitarLink(): void {
     this.linkDeConfirmacao.set(null);
     this.emailNaoPermitido.set(false);
+    this.falhaDeRede.set(false);
 
     this.authService.solicitarLink(this.form.controls.email.value).subscribe({
       next: (link) => this.linkDeConfirmacao.set(link),
@@ -32,7 +38,10 @@ export class Login {
           this.emailNaoPermitido.set(true);
           return;
         }
-        // Falha de rede e afins são da Tarefa 6 (CA6); até lá, o erro segue para o console.
+        if (erro instanceof FalhaDeRedeError) {
+          this.falhaDeRede.set(true);
+          return;
+        }
         this.errorHandler.handleError(erro);
       },
     });

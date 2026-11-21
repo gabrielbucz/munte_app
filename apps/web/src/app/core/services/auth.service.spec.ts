@@ -1,9 +1,9 @@
-import { provideHttpClient } from '@angular/common/http';
+import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { firstValueFrom } from 'rxjs';
 import { API_URL } from '../config/api.config';
-import { AuthService, EmailNaoPermitidoError } from './auth.service';
+import { AuthService, EmailNaoPermitidoError, FalhaDeRedeError } from './auth.service';
 
 describe('AuthService.solicitarLink', () => {
   const agora = new Date('2026-11-20T12:00:00.000Z');
@@ -60,4 +60,25 @@ describe('AuthService.solicitarLink', () => {
       http.expectNone(() => true);
     },
   );
+
+  it('CA6: falha de rede no POST /magicLinks vira FalhaDeRedeError', async () => {
+    const link = firstValueFrom(service.solicitarLink('fulano@alunos.utfpr.edu.br'));
+
+    http.expectOne(`${API_URL}/magicLinks`).error(new ProgressEvent('error'));
+
+    await expect(link).rejects.toBeInstanceOf(FalhaDeRedeError);
+  });
+
+  it('CA6: resposta de erro do servidor (500) não vira FalhaDeRedeError e propaga como está', async () => {
+    const link = firstValueFrom(service.solicitarLink('fulano@alunos.utfpr.edu.br'));
+
+    http
+      .expectOne(`${API_URL}/magicLinks`)
+      .flush(null, { status: 500, statusText: 'Internal Server Error' });
+
+    const erro: unknown = await link.catch((e: unknown) => e);
+    expect(erro).toBeInstanceOf(HttpErrorResponse);
+    expect(erro).not.toBeInstanceOf(FalhaDeRedeError);
+    expect((erro as HttpErrorResponse).status).toBe(500);
+  });
 });

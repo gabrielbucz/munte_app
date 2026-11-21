@@ -1,6 +1,6 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, map, throwError } from 'rxjs';
+import { Observable, catchError, map, throwError } from 'rxjs';
 import { API_URL } from '../config/api.config';
 
 const DOMINIO_PERMITIDO = '@alunos.utfpr.edu.br';
@@ -18,6 +18,13 @@ export class EmailNaoPermitidoError extends Error {
   constructor() {
     super('e-mail não permitido');
     this.name = 'EmailNaoPermitidoError';
+  }
+}
+
+export class FalhaDeRedeError extends Error {
+  constructor() {
+    super('falha de rede');
+    this.name = 'FalhaDeRedeError';
   }
 }
 
@@ -40,9 +47,17 @@ export class AuthService {
       usedAt: null,
     };
 
-    return this.http
-      .post<MagicLink>(`${API_URL}/magicLinks`, magicLink)
-      .pipe(map(() => `/auth/callback?token=${magicLink.token}`));
+    return this.http.post<MagicLink>(`${API_URL}/magicLinks`, magicLink).pipe(
+      map(() => `/auth/callback?token=${magicLink.token}`),
+      catchError((erro: unknown) =>
+        throwError(() => (this.falhaDeRede(erro) ? new FalhaDeRedeError() : erro)),
+      ),
+    );
+  }
+
+  // Status 0: a requisição não chegou a ter resposta (rede fora ou json-server fora do ar).
+  private falhaDeRede(erro: unknown): boolean {
+    return erro instanceof HttpErrorResponse && erro.status === 0;
   }
 
   private dominioPermitido(email: string): boolean {

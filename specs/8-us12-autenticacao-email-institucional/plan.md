@@ -68,7 +68,7 @@
   - Teste primeiro: `login.spec.ts` prova que, ao submeter `fulano@gmail.com` ou `fulano@utfpr.edu.br`, a tela exibe "e-mail não permitido ou link inválido" e não mostra o quadro "E-mail simulado". Falha antes porque a tela ainda não trata a rejeição do service.
   - Arquivos previstos: `features/auth/login/login.{ts,html,spec.ts}`
 
-- [ ] **Tarefa 6 — informar falha de rede e permitir nova tentativa**
+- [x] **Tarefa 6 — informar falha de rede e permitir nova tentativa**
   - Cobre: CA6
   - Teste primeiro: `login.spec.ts` prova que, quando `solicitarLink` falha por erro de rede, a tela exibe a mensagem de falha e o botão "Tentar novamente", mantém o e-mail digitado e, ao tentar de novo com sucesso, exibe o quadro "E-mail simulado". Falha antes porque o erro não é tratado.
   - Arquivos previstos: `features/auth/login/login.{ts,html,spec.ts}`, `core/services/auth.service.{ts,spec.ts}` (propagação do erro, se necessário)
