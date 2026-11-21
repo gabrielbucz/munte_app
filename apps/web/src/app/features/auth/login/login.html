@@ -14,10 +14,18 @@
           formControlName="email"
           autocomplete="email"
           placeholder="fulano@alunos.utfpr.edu.br"
+          [attr.aria-invalid]="emailNaoPermitido() ? 'true' : null"
+          [attr.aria-describedby]="emailNaoPermitido() ? 'email-erro' : null"
           class="rounded-lg border border-borda bg-superficie px-3 py-2 text-base font-normal text-texto
                  focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primaria/25"
         />
       </label>
+
+      @if (emailNaoPermitido()) {
+        <p id="email-erro" role="alert" class="text-sm font-semibold text-perigo">
+          e-mail não permitido ou link inválido
+        </p>
+      }
 
       <button
         type="submit"

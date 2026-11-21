@@ -63,7 +63,7 @@
   - Teste primeiro: `header.spec.ts` prova que, com a gaveta fechada, tocar no ☰ abre a gaveta e mostra o link "Entrar"; e que tocar em "Entrar" fecha a gaveta e navega para `/entrar`. Falha antes porque o ☰ e o signal `menuAberto` não existem.
   - Arquivos previstos: `shared/components/header/header.{ts,html,spec.ts}`
 
-- [ ] **Tarefa 5 — bloquear e-mail não institucional na tela Entrar**
+- [x] **Tarefa 5 — bloquear e-mail não institucional na tela Entrar**
   - Cobre: CA3 (parte do e-mail)
   - Teste primeiro: `login.spec.ts` prova que, ao submeter `fulano@gmail.com` ou `fulano@utfpr.edu.br`, a tela exibe "e-mail não permitido ou link inválido" e não mostra o quadro "E-mail simulado". Falha antes porque a tela ainda não trata a rejeição do service.
   - Arquivos previstos: `features/auth/login/login.{ts,html,spec.ts}`

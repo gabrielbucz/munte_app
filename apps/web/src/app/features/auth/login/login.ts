@@ -1,6 +1,6 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, ErrorHandler, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { AuthService } from '../../../core/services/auth.service';
+import { AuthService, EmailNaoPermitidoError } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -9,6 +9,7 @@ import { AuthService } from '../../../core/services/auth.service';
 })
 export class Login {
   private readonly authService = inject(AuthService);
+  private readonly errorHandler = inject(ErrorHandler);
 
   protected readonly form = new FormGroup({
     email: new FormControl('', {
@@ -18,10 +19,22 @@ export class Login {
   });
 
   protected readonly linkDeConfirmacao = signal<string | null>(null);
+  protected readonly emailNaoPermitido = signal(false);
 
   protected solicitarLink(): void {
-    this.authService
-      .solicitarLink(this.form.controls.email.value)
-      .subscribe((link) => this.linkDeConfirmacao.set(link));
+    this.linkDeConfirmacao.set(null);
+    this.emailNaoPermitido.set(false);
+
+    this.authService.solicitarLink(this.form.controls.email.value).subscribe({
+      next: (link) => this.linkDeConfirmacao.set(link),
+      error: (erro: unknown) => {
+        if (erro instanceof EmailNaoPermitidoError) {
+          this.emailNaoPermitido.set(true);
+          return;
+        }
+        // Falha de rede e afins são da Tarefa 6 (CA6); até lá, o erro segue para o console.
+        this.errorHandler.handleError(erro);
+      },
+    });
   }
 }
