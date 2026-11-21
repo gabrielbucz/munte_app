@@ -58,7 +58,7 @@
   - Teste primeiro: `login.spec.ts` prova que, ao submeter um e-mail `@alunos.utfpr.edu.br`, a tela chama `solicitarLink` e exibe o quadro "E-mail simulado" com o link clicável; e que o botão fica desabilitado com o campo vazio ou fora do formato de e-mail. Falha antes porque a tela e a rota `/entrar` não existem.
   - Arquivos previstos: `features/auth/login/login.{ts,html,spec.ts}`, `app.routes.ts`
 
-- [ ] **Tarefa 4 — abrir e fechar a gaveta de navegação no mobile**
+- [x] **Tarefa 4 — abrir e fechar a gaveta de navegação no mobile**
   - Cobre: CA8, CA9
   - Teste primeiro: `header.spec.ts` prova que, com a gaveta fechada, tocar no ☰ abre a gaveta e mostra o link "Entrar"; e que tocar em "Entrar" fecha a gaveta e navega para `/entrar`. Falha antes porque o ☰ e o signal `menuAberto` não existem.
   - Arquivos previstos: `shared/components/header/header.{ts,html,spec.ts}`

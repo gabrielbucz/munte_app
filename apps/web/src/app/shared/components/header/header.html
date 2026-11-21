@@ -2,7 +2,7 @@
   <div class="flex items-center justify-between gap-4 px-4 py-3 md:px-8">
     <a routerLink="/" class="text-xl font-semibold text-primaria">Munte-app</a>
 
-    <nav aria-label="Navegação principal">
+    <nav aria-label="Navegação principal" class="hidden md:block">
       <ul class="flex items-center gap-4">
         @for (link of links; track link.caminho) {
           <li>
@@ -18,5 +18,41 @@
         }
       </ul>
     </nav>
+
+    <button
+      type="button"
+      aria-label="Menu de navegação"
+      aria-controls="gaveta-navegacao"
+      [attr.aria-expanded]="menuAberto()"
+      (click)="alternarMenu()"
+      class="p-2 text-xl text-texto hover:text-primaria-hover md:hidden
+             focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primaria/25"
+    >
+      <span aria-hidden="true">☰</span>
+    </button>
   </div>
+
+  @if (menuAberto()) {
+    <nav
+      id="gaveta-navegacao"
+      aria-label="Navegação principal (menu)"
+      class="border-t border-borda px-4 py-3 md:hidden"
+    >
+      <ul class="flex flex-col gap-3">
+        @for (link of links; track link.caminho) {
+          <li>
+            <a
+              [routerLink]="link.caminho"
+              routerLinkActive="text-primaria"
+              (click)="fecharMenu()"
+              class="text-sm font-semibold text-texto-suave hover:text-primaria-hover
+                     focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primaria/25"
+            >
+              {{ link.rotulo }}
+            </a>
+          </li>
+        }
+      </ul>
+    </nav>
+  }
 </header>
