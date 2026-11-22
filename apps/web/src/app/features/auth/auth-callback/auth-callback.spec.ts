@@ -19,6 +19,7 @@ describe('AuthCallback (confirmação do link)', () => {
           useValue: {
             confirmarLink,
             sessao: signal({ email: 'fulano@alunos.utfpr.edu.br' }),
+            autenticado: signal(true),
           },
         },
       ],

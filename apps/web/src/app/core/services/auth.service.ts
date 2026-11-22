@@ -1,5 +1,5 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, catchError, map, switchMap, throwError } from 'rxjs';
 import { API_URL } from '../config/api.config';
 
@@ -42,6 +42,7 @@ export class AuthService {
   // TODO #25: a sessão fica no localStorage; na Entrega 3 passa a vir do Supabase Auth.
   private readonly sessaoAtual = signal<Sessao | null>(this.lerSessao());
   readonly sessao = this.sessaoAtual.asReadonly();
+  readonly autenticado = computed(() => this.sessao() !== null);
 
   // TODO #25: envio simulado — o link volta para a tela em vez de ir por e-mail, e fica
   // guardado na coleção magicLinks do json-server, e não no Supabase Auth.

@@ -149,3 +149,34 @@ describe('AuthService.confirmarLink', () => {
     expect(serviceNovo.sessao()).toEqual({ email: 'fulano@alunos.utfpr.edu.br' });
   });
 });
+
+describe('AuthService.autenticado', () => {
+  function criarService(): AuthService {
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
+    return TestBed.inject(AuthService);
+  }
+
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  afterEach(() => {
+    localStorage.clear();
+  });
+
+  it('CA3: sem sessão, autenticado() é falso', () => {
+    const service = criarService();
+
+    expect(service.autenticado()).toBe(false);
+  });
+
+  it('CA2: com sessão, autenticado() é verdadeiro', () => {
+    localStorage.setItem('munte.sessao', JSON.stringify({ email: 'fulano@alunos.utfpr.edu.br' }));
+
+    const service = criarService();
+
+    expect(service.autenticado()).toBe(true);
+  });
+});

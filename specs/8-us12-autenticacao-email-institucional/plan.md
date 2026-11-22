@@ -78,7 +78,7 @@
   - Teste primeiro: `auth.service.spec.ts` prova que `confirmarLink` com token existente, não usado e dentro do prazo faz `PATCH usedAt`, grava a sessão e retorna `'valido'`; `auth-callback.spec.ts` prova que o callback com esse token navega para `/inicio`; `inicio.spec.ts` prova que a tela mostra "Você entrou como <e-mail>". Falha antes porque `confirmarLink`, o callback e a Início não existem.
   - Arquivos previstos: `core/services/auth.service.{ts,spec.ts}`, `features/auth/auth-callback/auth-callback.{ts,html,spec.ts}`, `features/inicio/inicio.{ts,html,spec.ts}`, `app.routes.ts`, `app.config.ts`
 
-- [ ] **Tarefa 8 — proteger a tela Início com o authGuard**
+- [x] **Tarefa 8 — proteger a tela Início com o authGuard**
   - Cobre: CA2 (sem sessão, a Início não é exibida), CA3 (bloqueia o acesso)
   - Teste primeiro: `auth.guard.spec.ts` prova que, com sessão, o guard retorna `true`; sem sessão, retorna um `UrlTree` para `/entrar`. Com as rotas reais, navegar para `/` leva a `/inicio` com sessão e a `/entrar` sem sessão (redirecionamento `''` → `inicio`, das Decisões técnicas). `auth.service.spec.ts` prova que `autenticado()` é falso sem sessão e verdadeiro com sessão. Falha antes porque o guard, o redirecionamento e o `autenticado` não existem.
   - Arquivos previstos: `core/guards/auth.guard.{ts,spec.ts}`, `core/services/auth.service.{ts,spec.ts}`, `features/auth/auth-callback/auth-callback.spec.ts` (o AuthService falso ganha `autenticado`), `app.routes.ts`
