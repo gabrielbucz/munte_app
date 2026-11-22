@@ -63,32 +63,32 @@
   - Teste primeiro: `header.spec.ts` prova que, com a gaveta fechada, tocar no ☰ abre a gaveta e mostra o link "Entrar"; e que tocar em "Entrar" fecha a gaveta e navega para `/entrar`. Falha antes porque o ☰ e o signal `menuAberto` não existem.
   - Arquivos previstos: `shared/components/header/header.{ts,html,spec.ts}`
 
-- [ ] **Tarefa 5 — bloquear e-mail não institucional na tela Entrar**
+- [x] **Tarefa 5 — bloquear e-mail não institucional na tela Entrar**
   - Cobre: CA3 (parte do e-mail)
   - Teste primeiro: `login.spec.ts` prova que, ao submeter `fulano@gmail.com` ou `fulano@utfpr.edu.br`, a tela exibe "e-mail não permitido ou link inválido" e não mostra o quadro "E-mail simulado". Falha antes porque a tela ainda não trata a rejeição do service.
   - Arquivos previstos: `features/auth/login/login.{ts,html,spec.ts}`
 
-- [ ] **Tarefa 6 — informar falha de rede e permitir nova tentativa**
+- [x] **Tarefa 6 — informar falha de rede e permitir nova tentativa**
   - Cobre: CA6
   - Teste primeiro: `login.spec.ts` prova que, quando `solicitarLink` falha por erro de rede, a tela exibe a mensagem de falha e o botão "Tentar novamente", mantém o e-mail digitado e, ao tentar de novo com sucesso, exibe o quadro "E-mail simulado". Falha antes porque o erro não é tratado.
   - Arquivos previstos: `features/auth/login/login.{ts,html,spec.ts}`, `core/services/auth.service.{ts,spec.ts}` (propagação do erro, se necessário)
 
-- [ ] **Tarefa 7 — confirmar o link válido e levar o aluno à tela Início**
+- [x] **Tarefa 7 — confirmar o link válido e levar o aluno à tela Início**
   - Cobre: CA2
   - Teste primeiro: `auth.service.spec.ts` prova que `confirmarLink` com token existente, não usado e dentro do prazo faz `PATCH usedAt`, grava a sessão e retorna `'valido'`; `auth-callback.spec.ts` prova que o callback com esse token navega para `/inicio`; `inicio.spec.ts` prova que a tela mostra "Você entrou como <e-mail>". Falha antes porque `confirmarLink`, o callback e a Início não existem.
   - Arquivos previstos: `core/services/auth.service.{ts,spec.ts}`, `features/auth/auth-callback/auth-callback.{ts,html,spec.ts}`, `features/inicio/inicio.{ts,html,spec.ts}`, `app.routes.ts`, `app.config.ts`
 
-- [ ] **Tarefa 8 — proteger a tela Início com o authGuard**
+- [x] **Tarefa 8 — proteger a tela Início com o authGuard**
   - Cobre: CA2 (sem sessão, a Início não é exibida), CA3 (bloqueia o acesso)
-  - Teste primeiro: `auth.guard.spec.ts` prova que, com sessão, o guard retorna `true`; sem sessão, retorna um `UrlTree` para `/entrar`. Falha antes porque o guard não existe.
-  - Arquivos previstos: `core/guards/auth.guard.{ts,spec.ts}`, `app.routes.ts`
+  - Teste primeiro: `auth.guard.spec.ts` prova que, com sessão, o guard retorna `true`; sem sessão, retorna um `UrlTree` para `/entrar`. Com as rotas reais, navegar para `/` leva a `/inicio` com sessão e a `/entrar` sem sessão (redirecionamento `''` → `inicio`, das Decisões técnicas). `auth.service.spec.ts` prova que `autenticado()` é falso sem sessão e verdadeiro com sessão. Falha antes porque o guard, o redirecionamento e o `autenticado` não existem.
+  - Arquivos previstos: `core/guards/auth.guard.{ts,spec.ts}`, `core/services/auth.service.{ts,spec.ts}`, `features/auth/auth-callback/auth-callback.spec.ts` (o AuthService falso ganha `autenticado`), `app.routes.ts`
 
-- [ ] **Tarefa 9 — bloquear link inválido ou já usado**
+- [x] **Tarefa 9 — bloquear link inválido ou já usado**
   - Cobre: CA3 (parte do link)
   - Teste primeiro: `auth.service.spec.ts` prova que `confirmarLink` retorna `'invalido'` para token inexistente e para token com `usedAt` preenchido, sem gravar sessão; `auth-callback.spec.ts` prova que a tela exibe "e-mail não permitido ou link inválido" e não navega. Falha antes porque esses casos não são tratados.
   - Arquivos previstos: `core/services/auth.service.{ts,spec.ts}`, `features/auth/auth-callback/auth-callback.{ts,html,spec.ts}`
 
-- [ ] **Tarefa 10 — bloquear link expirado e oferecer um novo link**
+- [x] **Tarefa 10 — bloquear link expirado e oferecer um novo link**
   - Cobre: CA4
   - Teste primeiro: `auth.service.spec.ts` (com relógio simulado) prova que um token com `expiresAt` no passado retorna `'expirado'` sem gravar sessão; `auth-callback.spec.ts` prova que a tela exibe a mensagem de bloqueio e o link "Solicitar novo link" para `/entrar`. Falha antes porque a validade não é conferida.
   - Arquivos previstos: `core/services/auth.service.{ts,spec.ts}`, `features/auth/auth-callback/auth-callback.{ts,html,spec.ts}`

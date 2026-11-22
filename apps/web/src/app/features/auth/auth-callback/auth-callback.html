@@ -1,0 +1,19 @@
+<section class="mx-auto flex w-full max-w-md flex-col gap-4 rounded-lg border border-borda bg-superficie p-6">
+  @if (bloqueio(); as motivo) {
+    <p role="alert" class="text-sm font-semibold text-perigo">
+      e-mail não permitido ou link inválido
+    </p>
+    @if (motivo === 'expirado') {
+      <a
+        routerLink="/entrar"
+        class="text-sm font-semibold text-primaria hover:text-primaria-hover
+               focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primaria/25"
+      >
+        Solicitar novo link
+      </a>
+    }
+  } @else {
+    <h1 class="text-2xl font-semibold text-texto">Confirmando seu acesso</h1>
+    <p class="text-sm text-texto-suave">Aguarde enquanto conferimos o link de confirmação.</p>
+  }
+</section>
