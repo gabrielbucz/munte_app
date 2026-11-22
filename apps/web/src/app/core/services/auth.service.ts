@@ -1,10 +1,11 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
-import { Observable, catchError, map, throwError } from 'rxjs';
+import { Injectable, inject, signal } from '@angular/core';
+import { Observable, catchError, map, switchMap, throwError } from 'rxjs';
 import { API_URL } from '../config/api.config';
 
 const DOMINIO_PERMITIDO = '@alunos.utfpr.edu.br';
 const VALIDADE_DO_LINK_MS = 60 * 60 * 1000;
+const CHAVE_DA_SESSAO = 'munte.sessao';
 
 export interface MagicLink {
   id?: string;
@@ -13,6 +14,12 @@ export interface MagicLink {
   expiresAt: string;
   usedAt: string | null;
 }
+
+export interface Sessao {
+  email: string;
+}
+
+export type ResultadoDaConfirmacao = 'valido' | 'invalido' | 'expirado';
 
 export class EmailNaoPermitidoError extends Error {
   constructor() {
@@ -31,6 +38,10 @@ export class FalhaDeRedeError extends Error {
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
+
+  // TODO #25: a sessão fica no localStorage; na Entrega 3 passa a vir do Supabase Auth.
+  private readonly sessaoAtual = signal<Sessao | null>(this.lerSessao());
+  readonly sessao = this.sessaoAtual.asReadonly();
 
   // TODO #25: envio simulado — o link volta para a tela em vez de ir por e-mail, e fica
   // guardado na coleção magicLinks do json-server, e não no Supabase Auth.
@@ -53,6 +64,35 @@ export class AuthService {
         throwError(() => (this.falhaDeRede(erro) ? new FalhaDeRedeError() : erro)),
       ),
     );
+  }
+
+  // TODO #25: o link é conferido e marcado como usado na coleção magicLinks do json-server,
+  // e não no Supabase Auth.
+  confirmarLink(token: string): Observable<ResultadoDaConfirmacao> {
+    return this.http.get<MagicLink[]>(`${API_URL}/magicLinks`, { params: { token } }).pipe(
+      switchMap(([magicLink]) =>
+        this.http
+          .patch<MagicLink>(`${API_URL}/magicLinks/${magicLink.id}`, {
+            usedAt: new Date().toISOString(),
+          })
+          .pipe(
+            map((): ResultadoDaConfirmacao => {
+              this.gravarSessao({ email: magicLink.email });
+              return 'valido';
+            }),
+          ),
+      ),
+    );
+  }
+
+  private gravarSessao(sessao: Sessao): void {
+    localStorage.setItem(CHAVE_DA_SESSAO, JSON.stringify(sessao));
+    this.sessaoAtual.set(sessao);
+  }
+
+  private lerSessao(): Sessao | null {
+    const gravada = localStorage.getItem(CHAVE_DA_SESSAO);
+    return gravada ? (JSON.parse(gravada) as Sessao) : null;
   }
 
   // Status 0: a requisição não chegou a ter resposta (rede fora ou json-server fora do ar).

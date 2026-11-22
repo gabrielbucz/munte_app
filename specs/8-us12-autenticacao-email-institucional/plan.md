@@ -73,7 +73,7 @@
   - Teste primeiro: `login.spec.ts` prova que, quando `solicitarLink` falha por erro de rede, a tela exibe a mensagem de falha e o botão "Tentar novamente", mantém o e-mail digitado e, ao tentar de novo com sucesso, exibe o quadro "E-mail simulado". Falha antes porque o erro não é tratado.
   - Arquivos previstos: `features/auth/login/login.{ts,html,spec.ts}`, `core/services/auth.service.{ts,spec.ts}` (propagação do erro, se necessário)
 
-- [ ] **Tarefa 7 — confirmar o link válido e levar o aluno à tela Início**
+- [x] **Tarefa 7 — confirmar o link válido e levar o aluno à tela Início**
   - Cobre: CA2
   - Teste primeiro: `auth.service.spec.ts` prova que `confirmarLink` com token existente, não usado e dentro do prazo faz `PATCH usedAt`, grava a sessão e retorna `'valido'`; `auth-callback.spec.ts` prova que o callback com esse token navega para `/inicio`; `inicio.spec.ts` prova que a tela mostra "Você entrou como <e-mail>". Falha antes porque `confirmarLink`, o callback e a Início não existem.
   - Arquivos previstos: `core/services/auth.service.{ts,spec.ts}`, `features/auth/auth-callback/auth-callback.{ts,html,spec.ts}`, `features/inicio/inicio.{ts,html,spec.ts}`, `app.routes.ts`, `app.config.ts`
