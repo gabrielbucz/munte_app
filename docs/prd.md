@@ -174,20 +174,20 @@ Moderação para gerenciar locais fixos e ver métricas. Entra só se sobrar tem
 
 Contador de viagens voluntárias e estimativa de impacto no campus. Cabeçalho registrado — detalhar se entrar.
 
-### US12 — autenticação por e-mail institucional · `Must Have` · `S` · Status: `Ready`
+### US12 — autenticação por e-mail institucional · `Must Have` · `S` · Status: `Done`
 
 **Como** aluno de graduação da UTFPR, **eu quero** entrar com meu e-mail institucional (@alunos.utfpr.edu.br), **para que** meu vínculo seja verificado por link de confirmação, sem cadastro manual nem senha local.
 
 **Critérios de aceite:**
 
-- [ ] **CA1 — Dado** informo um e-mail institucional @alunos.utfpr.edu.br, **quando** solicito acesso, **então** o sistema envia um link de confirmação por e-mail.
-- [ ] **CA2 — Dado** clico no link de confirmação recebido dentro do prazo de validade (1 hora), **quando** tento entrar, **então** o acesso libera com vínculo ativo.
-- [ ] **CA3 — Dado** uso um e-mail não institucional ou um link expirado/inválido, **quando** tento entrar, **então** exibe "e-mail não permitido ou link inválido" e bloqueia o acesso.
-- [ ] **CA4 — Dado** que o usuário solicitou um link de confirmação e não o utilizou dentro do prazo de validade, **quando** tentar autenticar com esse link expirado, **então** o acesso será bloqueado e o usuário poderá solicitar um novo link.
-- [ ] **CA6 — Dado** que ocorre uma falha de rede durante o envio do e-mail de confirmação, **quando** o usuário solicitar acesso, **então** o sistema deverá informar o erro e permitir uma nova tentativa.
-- [ ] **CA7 — Dado** que o usuário acessa uma tela da aplicação, **quando** a rota correspondente é apresentada, **então** o conteúdo da tela deve ser renderizado no palco central, entre o cabeçalho e o rodapé da App Shell.
-- [ ] **CA8 — Dado** que a aplicação está em visualização mobile e a gaveta está fechada, **quando** o usuário toca no botão ☰, **então** a gaveta de navegação é aberta e apresenta o link da história.
-- [ ] **CA9 — Dado** que a gaveta mobile está aberta, **quando** o usuário toca no link da história, **então** a gaveta é fechada e a tela correspondente à história é apresentada.
+- [x] **CA1 — Dado** informo um e-mail institucional @alunos.utfpr.edu.br, **quando** solicito acesso, **então** o sistema envia um link de confirmação por e-mail.
+- [x] **CA2 — Dado** clico no link de confirmação recebido dentro do prazo de validade (1 hora), **quando** tento entrar, **então** o acesso libera com vínculo ativo.
+- [x] **CA3 — Dado** uso um e-mail não institucional ou um link expirado/inválido, **quando** tento entrar, **então** exibe "e-mail não permitido ou link inválido" e bloqueia o acesso.
+- [x] **CA4 — Dado** que o usuário solicitou um link de confirmação e não o utilizou dentro do prazo de validade, **quando** tentar autenticar com esse link expirado, **então** o acesso será bloqueado e o usuário poderá solicitar um novo link.
+- [x] **CA6 — Dado** que ocorre uma falha de rede durante o envio do e-mail de confirmação, **quando** o usuário solicitar acesso, **então** o sistema deverá informar o erro e permitir uma nova tentativa.
+- [x] **CA7 — Dado** que o usuário acessa uma tela da aplicação, **quando** a rota correspondente é apresentada, **então** o conteúdo da tela deve ser renderizado no palco central, entre o cabeçalho e o rodapé da App Shell.
+- [x] **CA8 — Dado** que a aplicação está em visualização mobile e a gaveta está fechada, **quando** o usuário toca no botão ☰, **então** a gaveta de navegação é aberta e apresenta o link da história.
+- [x] **CA9 — Dado** que a gaveta mobile está aberta, **quando** o usuário toca no link da história, **então** a gaveta é fechada e a tela correspondente à história é apresentada.
 
 **Regras relacionadas:** RN14
 
@@ -258,6 +258,7 @@ Detalhe de implementação (Service Workers, tempos, canais) fica para o `archit
 | 2026-10-11 | 1.1.0 | Adicionados critérios de aceite e RN15 para mitigação de abandono no US01 (rota habitual 1-clique, pré-preenchimento por turno, bloqueio antecipado sem veículo) via `/utf-design` |
 | 2026-11-20 | 1.2.0 | Divisão da US12 em US12 (acesso inicial: CA1, CA2, CA3, CA4, CA6, CA7, CA8, CA9) e US13 (recuperação de sessão: CA5). Atualização da RN14 para autenticação por e-mail institucional. |
 | 2026-11-20 | 1.3.0 | Escopo restrito a alunos de graduação: servidores e pós-graduação vão para Fora de Escopo; domínio aceito passa a ser @alunos.utfpr.edu.br (US12, CA1); CA2 deixa de identificar perfil aluno/servidor. |
+| 2026-11-22 | 1.3.1 | US12 implementada (Issue #8): status `Done` e critérios de aceite marcados. |
 
 ---
 

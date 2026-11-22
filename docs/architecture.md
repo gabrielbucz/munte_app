@@ -74,6 +74,7 @@ apps/web/src/app/
 │   └── directives/                    # autofocus, clickOutside, mask...
 └── features/                          # Uma pasta por domínio de negócio (lazy loaded)
     ├── auth/                          # Login, callback, registro veículo
+    ├── inicio/                        # Tela Início pós-login (protegida pelo authGuard)
     ├── driver/                        # Criar oferta, gestão solicitações, minhas caronas (motorista)
     ├── passenger/                     # Buscar caronas, detalhe oferta, solicitação, minhas caronas (passageiro)
     ├── notifications/                 # Sino / central de notificações
@@ -95,6 +96,7 @@ Oferta de carona	RideOffer	id, driverId, vehicleId, direction, neighborhoodId, p
 Solicitação	RideRequest	id, rideOfferId, passengerId, direction, status: 'pending' | 'accepted' | 'rejected' | 'cancelled_by_passenger' | 'cancelled_by_driver', requestedAt, respondedAt?
 Match / Aceite	(estado de RideRequest)	status === 'accepted'
 Cancelamento	(estado de RideRequest / RideOffer)	status === 'cancelled_by_*' + cancelledAt, cancelledBy
+Link de confirmação	MagicLink	id, email, token, expiresAt, usedAt (null enquanto não usado)
 Notificação (sino)	Notification	id, userId, type: 'new_request' | 'request_accepted' | 'request_rejected' | 'ride_cancelled' | 'ride_reminder', payload, read, createdAt
 
 
@@ -166,6 +168,13 @@ erDiagram
         boolean read
         datetime createdAt
     }
+    MAGIC_LINK {
+        string id PK
+        string email
+        string token
+        datetime expiresAt
+        datetime usedAt
+    }
     RIDE_OFFER }|--|| NEIGHBORHOOD : belongs_to
     RIDE_OFFER }|--|| PICKUP_POINT : departs_from
     RIDE_REQUEST }|--|| USER : passenger
@@ -187,9 +196,9 @@ ID15	Services com inject() — comunicação entre componentes não-hierárquico
 ID16	Roteamento funcional provideRouter() + withComponentInputBinding() — rotas em app.routes.ts: export const routes: Routes = [...]; bootstrap: provideRouter(routes, withComponentInputBinding()). Parâmetros da URL viram input() no componente destino.
 ID17	Consumo de parâmetros via input() — no componente: rideId = input.required<string>(); — o router popula automaticamente via withComponentInputBinding().
 ID18	Rotas aninhadas (child routes) — layout shell com <router-outlet> pai + features lazy: path: 'driver', loadChildren: () => import('./features/driver/driver.routes').then(m => m.DRIVER_ROUTES).
-ID19	Functional Guards + Resolvers — authGuard = () => inject(AuthService).isAuthenticated() ? true : redirectToLogin(); — provideRouter(routes, withGuards([authGuard])). Resolver: rideResolver = () => inject(RideService).getById(inject(ActivatedRoute).snapshot.params['id']);.
+ID19	Functional Guards + Resolvers — authGuard: CanActivateFn = () => inject(AuthService).autenticado() ? true : inject(Router).createUrlTree(['/entrar']); — ligado na rota com canActivate: [authGuard]. Resolver: rideResolver = () => inject(RideService).getById(inject(ActivatedRoute).snapshot.params['id']);.
 ID20	Requisições GET assíncronas — Services usam HttpClient + toSignal() / toObservable(): getOffers = () => this.http.get<RideOffer[]>('/rides').pipe(toSignal());
-ID21	Auth JWT com BaaS (Supabase) — AuthService encapsula supabase.auth: signInWithOtp({ email }) com link de confirmação, getSession(), onAuthStateChange(). Somente e-mails institucionais @utfpr.edu.br. Token no interceptor.
+ID21	Auth JWT com BaaS (Supabase) — AuthService encapsula supabase.auth: signInWithOtp({ email }) com link de confirmação, getSession(), onAuthStateChange(). Somente e-mails institucionais @alunos.utfpr.edu.br (PRD 1.3.0). Token no interceptor.
 ID22	CRUD completo no BaaS — Services expõem create(), update(), delete(), getById(), list() mapeando para Supabase from('table').select/insert/update/delete.
 ID23	Functional Interceptors — authInterceptor = (req, next) => { const token = inject(AuthService).accessToken(); return next(req.clone({ setHeaders: { Authorization: Bearer ${token}` } })); }`; errorInterceptor centraliza toast + log + retry policy.
 ID24	Formulários Reativos + Validação — FormBuilder + Validators + model() binding. Botão submit: [disabled]="form.invalid | form.pristine". Mensagens de erro via @if (control.invalid && control.touched) { @for (err of control.errors | keyvalue; track err.key) { {{ errorMessages[err.key] }} } }
@@ -201,7 +210,7 @@ ID29–ID33	IA-Assisted SDD — Issues no GitHub Projects (Kanban). PRD → Arch
 
 8. Contrato dos Dados
 Fase	Onde Mora	Formato
-MVP (Entrega 2)	apps/api/db.json	JSON estruturado espelhando o ER acima (arrays por entidade: users, vehicles, rideOffers, rideRequests, neighborhoods, pickupPoints, notifications)
+MVP (Entrega 2)	apps/api/db.json	JSON estruturado espelhando o ER acima (arrays por entidade: users, vehicles, rideOffers, rideRequests, neighborhoods, pickupPoints, notifications, magicLinks). A sessão do aluno fica no localStorage (chave munte.sessao, { email }) até a Entrega 3 (#25)
 Entrega 3	Supabase (Postgres)	Tabelas relacionais com FKs, RLS (Row Level Security) por user_id, triggers para availableSeats decrement, Realtime subscriptions em ride_requests e notifications
 
 
@@ -218,6 +227,7 @@ Data	Versão	O que mudou
 2026-10-11	1.0.0	Versão inicial via /utf-architecture — todas as decisões da Fase 0 registradas
 2026-11-19	1.1.0	Substituição do Bootstrap 5 por Tailwind CSS v4; correção da formatação Markdown e explicitação da integração com Angular
 2026-11-20	1.1.1	Remoção do campo role de User (glossário e diagrama ER), pois o PRD 1.3.0 restringe o app a alunos de graduação
+2026-11-22	1.2.0	US12 (#8): coleção magicLinks (glossário, ER e Seção 8), pasta features/inicio/ (Seção 4); ID21 passa a @alunos.utfpr.edu.br; ID19 corrigido para canActivate (withGuards não existe na API do Angular)
 
 
 Próximo passo: /utf-setup — o aluno lê fora do chat; o commit é dele.
