@@ -1,9 +1,10 @@
 import { Component, OnInit, inject, input, signal } from '@angular/core';
-import { Router } from '@angular/router';
-import { AuthService } from '../../../core/services/auth.service';
+import { Router, RouterLink } from '@angular/router';
+import { AuthService, ResultadoDaConfirmacao } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-auth-callback',
+  imports: [RouterLink],
   templateUrl: './auth-callback.html',
 })
 export class AuthCallback implements OnInit {
@@ -12,7 +13,7 @@ export class AuthCallback implements OnInit {
 
   readonly token = input<string>();
 
-  protected readonly linkInvalido = signal(false);
+  protected readonly bloqueio = signal<Exclude<ResultadoDaConfirmacao, 'valido'> | null>(null);
 
   ngOnInit(): void {
     this.authService.confirmarLink(this.token() ?? '').subscribe((resultado) => {
@@ -20,9 +21,7 @@ export class AuthCallback implements OnInit {
         void this.router.navigateByUrl('/inicio');
         return;
       }
-      if (resultado === 'invalido') {
-        this.linkInvalido.set(true);
-      }
+      this.bloqueio.set(resultado);
     });
   }
 }

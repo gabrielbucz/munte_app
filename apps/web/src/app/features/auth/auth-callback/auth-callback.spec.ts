@@ -53,4 +53,28 @@ describe('AuthCallback (confirmação do link)', () => {
     expect(alerta?.textContent?.trim()).toBe('e-mail não permitido ou link inválido');
     expect(harness.routeNativeElement?.textContent).not.toContain('Acesso bloqueado');
   });
+
+  it('CA4: com link expirado, exibe a mensagem de bloqueio e o link "Solicitar novo link" para /entrar', async () => {
+    confirmarLink.mockReturnValue(of('expirado'));
+    const harness = await RouterTestingHarness.create();
+
+    await harness.navigateByUrl('/auth/callback?token=token-expirado');
+    await harness.fixture.whenStable();
+    harness.detectChanges();
+
+    expect(confirmarLink).toHaveBeenCalledWith('token-expirado');
+    expect(TestBed.inject(Router).url).toBe('/auth/callback?token=token-expirado');
+    const alerta = harness.routeNativeElement?.querySelector('[role="alert"]');
+    expect(alerta?.textContent?.trim()).toBe('e-mail não permitido ou link inválido');
+
+    const novoLink = Array.from(
+      harness.routeNativeElement?.querySelectorAll<HTMLAnchorElement>('a') ?? [],
+    ).find((a) => a.textContent?.trim() === 'Solicitar novo link');
+    expect(novoLink?.getAttribute('href')).toBe('/entrar');
+
+    novoLink?.click();
+    await harness.fixture.whenStable();
+
+    expect(TestBed.inject(Router).url).toBe('/entrar');
+  });
 });

@@ -172,6 +172,66 @@ describe('AuthService.confirmarLink', () => {
     expect(localStorage.getItem('munte.sessao')).toBeNull();
   });
 
+  it('CA4: link com expiresAt no passado retorna "expirado", sem PATCH e sem gravar sessão', async () => {
+    const resultado = firstValueFrom(service.confirmarLink('token-valido'));
+
+    http
+      .expectOne(
+        (req) =>
+          req.method === 'GET' &&
+          req.url === `${API_URL}/magicLinks` &&
+          req.params.get('token') === 'token-valido',
+      )
+      .flush([{ ...linkValido, expiresAt: '2026-11-20T11:59:59.999Z' }]);
+
+    http.expectNone(() => true);
+    expect(await resultado).toBe('expirado');
+    expect(service.sessao()).toBeNull();
+    expect(localStorage.getItem('munte.sessao')).toBeNull();
+  });
+
+  it('CA4: no instante exato de expiresAt o link ainda vale (expirado é só expiresAt no passado)', async () => {
+    const resultado = firstValueFrom(service.confirmarLink('token-valido'));
+
+    http
+      .expectOne(
+        (req) =>
+          req.method === 'GET' &&
+          req.url === `${API_URL}/magicLinks` &&
+          req.params.get('token') === 'token-valido',
+      )
+      .flush([{ ...linkValido, expiresAt: '2026-11-20T12:00:00.000Z' }]);
+
+    http
+      .expectOne(`${API_URL}/magicLinks/1`)
+      .flush({ ...linkValido, usedAt: '2026-11-20T12:00:00.000Z' });
+
+    expect(await resultado).toBe('valido');
+  });
+
+  it('CA3: link já usado e também vencido retorna "invalido" (o uso é conferido antes da validade)', async () => {
+    const resultado = firstValueFrom(service.confirmarLink('token-valido'));
+
+    http
+      .expectOne(
+        (req) =>
+          req.method === 'GET' &&
+          req.url === `${API_URL}/magicLinks` &&
+          req.params.get('token') === 'token-valido',
+      )
+      .flush([
+        {
+          ...linkValido,
+          expiresAt: '2026-11-20T11:00:00.000Z',
+          usedAt: '2026-11-20T10:30:00.000Z',
+        },
+      ]);
+
+    http.expectNone(() => true);
+    expect(await resultado).toBe('invalido');
+    expect(service.sessao()).toBeNull();
+  });
+
   it('CA2: a sessão gravada no localStorage é lida quando o app abre de novo', () => {
     localStorage.setItem('munte.sessao', JSON.stringify({ email: 'fulano@alunos.utfpr.edu.br' }));
     TestBed.resetTestingModule();

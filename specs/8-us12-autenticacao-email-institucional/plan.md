@@ -88,7 +88,7 @@
   - Teste primeiro: `auth.service.spec.ts` prova que `confirmarLink` retorna `'invalido'` para token inexistente e para token com `usedAt` preenchido, sem gravar sessão; `auth-callback.spec.ts` prova que a tela exibe "e-mail não permitido ou link inválido" e não navega. Falha antes porque esses casos não são tratados.
   - Arquivos previstos: `core/services/auth.service.{ts,spec.ts}`, `features/auth/auth-callback/auth-callback.{ts,html,spec.ts}`
 
-- [ ] **Tarefa 10 — bloquear link expirado e oferecer um novo link**
+- [x] **Tarefa 10 — bloquear link expirado e oferecer um novo link**
   - Cobre: CA4
   - Teste primeiro: `auth.service.spec.ts` (com relógio simulado) prova que um token com `expiresAt` no passado retorna `'expirado'` sem gravar sessão; `auth-callback.spec.ts` prova que a tela exibe a mensagem de bloqueio e o link "Solicitar novo link" para `/entrar`. Falha antes porque a validade não é conferida.
   - Arquivos previstos: `core/services/auth.service.{ts,spec.ts}`, `features/auth/auth-callback/auth-callback.{ts,html,spec.ts}`

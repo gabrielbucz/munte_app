@@ -76,6 +76,10 @@ export class AuthService {
         if (!magicLink || magicLink.usedAt) {
           return of('invalido');
         }
+        // Expirado: não usado, mas a validade de 1 hora já passou (CA4).
+        if (new Date(magicLink.expiresAt).getTime() < Date.now()) {
+          return of('expirado');
+        }
         return this.http
           .patch<MagicLink>(`${API_URL}/magicLinks/${magicLink.id}`, {
             usedAt: new Date().toISOString(),
