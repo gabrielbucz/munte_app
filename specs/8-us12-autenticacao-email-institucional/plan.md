@@ -80,7 +80,7 @@
 
 - [ ] **Tarefa 8 — proteger a tela Início com o authGuard**
   - Cobre: CA2 (sem sessão, a Início não é exibida), CA3 (bloqueia o acesso)
-  - Teste primeiro: `auth.guard.spec.ts` prova que, com sessão, o guard retorna `true`; sem sessão, retorna um `UrlTree` para `/entrar`. Falha antes porque o guard não existe.
+  - Teste primeiro: `auth.guard.spec.ts` prova que, com sessão, o guard retorna `true`; sem sessão, retorna um `UrlTree` para `/entrar`. Com as rotas reais, navegar para `/` leva a `/inicio` com sessão e a `/entrar` sem sessão (redirecionamento `''` → `inicio`, das Decisões técnicas). Falha antes porque o guard e o redirecionamento não existem.
   - Arquivos previstos: `core/guards/auth.guard.{ts,spec.ts}`, `app.routes.ts`
 
 - [ ] **Tarefa 9 — bloquear link inválido ou já usado**
