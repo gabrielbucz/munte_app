@@ -83,7 +83,7 @@
   - Teste primeiro: `auth.guard.spec.ts` prova que, com sessão, o guard retorna `true`; sem sessão, retorna um `UrlTree` para `/entrar`. Com as rotas reais, navegar para `/` leva a `/inicio` com sessão e a `/entrar` sem sessão (redirecionamento `''` → `inicio`, das Decisões técnicas). `auth.service.spec.ts` prova que `autenticado()` é falso sem sessão e verdadeiro com sessão. Falha antes porque o guard, o redirecionamento e o `autenticado` não existem.
   - Arquivos previstos: `core/guards/auth.guard.{ts,spec.ts}`, `core/services/auth.service.{ts,spec.ts}`, `features/auth/auth-callback/auth-callback.spec.ts` (o AuthService falso ganha `autenticado`), `app.routes.ts`
 
-- [ ] **Tarefa 9 — bloquear link inválido ou já usado**
+- [x] **Tarefa 9 — bloquear link inválido ou já usado**
   - Cobre: CA3 (parte do link)
   - Teste primeiro: `auth.service.spec.ts` prova que `confirmarLink` retorna `'invalido'` para token inexistente e para token com `usedAt` preenchido, sem gravar sessão; `auth-callback.spec.ts` prova que a tela exibe "e-mail não permitido ou link inválido" e não navega. Falha antes porque esses casos não são tratados.
   - Arquivos previstos: `core/services/auth.service.{ts,spec.ts}`, `features/auth/auth-callback/auth-callback.{ts,html,spec.ts}`

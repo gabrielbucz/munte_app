@@ -136,6 +136,42 @@ describe('AuthService.confirmarLink', () => {
     });
   });
 
+  it('CA3: token inexistente retorna "invalido", sem PATCH e sem gravar sessão', async () => {
+    const resultado = firstValueFrom(service.confirmarLink('token-adulterado'));
+
+    http
+      .expectOne(
+        (req) =>
+          req.method === 'GET' &&
+          req.url === `${API_URL}/magicLinks` &&
+          req.params.get('token') === 'token-adulterado',
+      )
+      .flush([]);
+
+    expect(await resultado).toBe('invalido');
+    http.expectNone(() => true);
+    expect(service.sessao()).toBeNull();
+    expect(localStorage.getItem('munte.sessao')).toBeNull();
+  });
+
+  it('CA3: token já usado (usedAt preenchido) retorna "invalido", sem PATCH e sem gravar sessão', async () => {
+    const resultado = firstValueFrom(service.confirmarLink('token-valido'));
+
+    http
+      .expectOne(
+        (req) =>
+          req.method === 'GET' &&
+          req.url === `${API_URL}/magicLinks` &&
+          req.params.get('token') === 'token-valido',
+      )
+      .flush([{ ...linkValido, usedAt: '2026-11-20T11:45:00.000Z' }]);
+
+    expect(await resultado).toBe('invalido');
+    http.expectNone(() => true);
+    expect(service.sessao()).toBeNull();
+    expect(localStorage.getItem('munte.sessao')).toBeNull();
+  });
+
   it('CA2: a sessão gravada no localStorage é lida quando o app abre de novo', () => {
     localStorage.setItem('munte.sessao', JSON.stringify({ email: 'fulano@alunos.utfpr.edu.br' }));
     TestBed.resetTestingModule();

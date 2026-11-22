@@ -1,6 +1,6 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { Observable, catchError, map, switchMap, throwError } from 'rxjs';
+import { Observable, catchError, map, of, switchMap, throwError } from 'rxjs';
 import { API_URL } from '../config/api.config';
 
 const DOMINIO_PERMITIDO = '@alunos.utfpr.edu.br';
@@ -71,8 +71,12 @@ export class AuthService {
   // e não no Supabase Auth.
   confirmarLink(token: string): Observable<ResultadoDaConfirmacao> {
     return this.http.get<MagicLink[]>(`${API_URL}/magicLinks`, { params: { token } }).pipe(
-      switchMap(([magicLink]) =>
-        this.http
+      switchMap(([magicLink]): Observable<ResultadoDaConfirmacao> => {
+        // Inválido: token inexistente (adulterado ou incompleto) ou link já usado.
+        if (!magicLink || magicLink.usedAt) {
+          return of('invalido');
+        }
+        return this.http
           .patch<MagicLink>(`${API_URL}/magicLinks/${magicLink.id}`, {
             usedAt: new Date().toISOString(),
           })
@@ -81,8 +85,8 @@ export class AuthService {
               this.gravarSessao({ email: magicLink.email });
               return 'valido';
             }),
-          ),
-      ),
+          );
+      }),
     );
   }
 

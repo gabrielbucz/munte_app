@@ -38,4 +38,19 @@ describe('AuthCallback (confirmação do link)', () => {
       'Você entrou como fulano@alunos.utfpr.edu.br',
     );
   });
+
+  it('CA3: com link inválido ou já usado, exibe "e-mail não permitido ou link inválido" e não navega', async () => {
+    confirmarLink.mockReturnValue(of('invalido'));
+    const harness = await RouterTestingHarness.create();
+
+    await harness.navigateByUrl('/auth/callback?token=token-adulterado');
+    await harness.fixture.whenStable();
+    harness.detectChanges();
+
+    expect(confirmarLink).toHaveBeenCalledWith('token-adulterado');
+    expect(TestBed.inject(Router).url).toBe('/auth/callback?token=token-adulterado');
+    const alerta = harness.routeNativeElement?.querySelector('[role="alert"]');
+    expect(alerta?.textContent?.trim()).toBe('e-mail não permitido ou link inválido');
+    expect(harness.routeNativeElement?.textContent).not.toContain('Acesso bloqueado');
+  });
 });
