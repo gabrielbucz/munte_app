@@ -64,7 +64,7 @@
   - Teste primeiro: `ride-offer-form.spec.ts` prova que, escolhido um bairro, o campo ponto lista só os 3 pontos dele; e que trocar de bairro desmarca o ponto escolhido antes. Falha antes porque o campo ponto não depende do bairro.
   - Arquivos previstos: `features/driver/ride-offer-form/ride-offer-form.{ts,html,spec.ts}`
 
-- [ ] **Tarefa 4 — limitar as vagas entre 1 e 4**
+- [x] **Tarefa 4 — limitar as vagas entre 1 e 4**
   - Cobre: CA3, CA7
   - Teste primeiro: `ride-offer-form.spec.ts` prova, para cada regra, o par aceita/recusa: 1 e 4 passam; 0 e -1 mostram "mínimo 1 vaga"; 5 mostra "máximo 4 vagas"; e o botão fica desligado nos recusados. Falha antes porque `seats` só é obrigatório.
   - Arquivos previstos: `features/driver/ride-offer-form/ride-offer-form.{ts,html,spec.ts}`

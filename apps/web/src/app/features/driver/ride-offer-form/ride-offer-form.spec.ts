@@ -309,3 +309,37 @@ describe('RideOfferForm: pontos do bairro escolhido (CA10)', () => {
     expect(raiz.querySelectorAll('[role="alert"]')).toHaveLength(0);
   });
 });
+
+describe('RideOfferForm: vagas entre 1 e 4 (CA3, CA7, CA9)', () => {
+  // Tudo válido menos Vagas: só o valor digitado em Vagas pode desligar "Publicar".
+  async function preencherVagas(
+    valor: string,
+  ): Promise<{ raiz: HTMLElement; vagas: HTMLInputElement }> {
+    const { harness, raiz } = await abrirFormulario();
+    preencherTudoMenos(harness, raiz, 'Vagas');
+    const vagas = campoPorRotulo<HTMLInputElement>(raiz, 'Vagas');
+    digitar(harness, vagas, valor);
+    sair(harness, vagas);
+    return { raiz, vagas };
+  }
+
+  it.each(['1', '4'])('aceita %s vaga(s): sem mensagem e "Publicar" ligado', async (valor) => {
+    const { raiz, vagas } = await preencherVagas(valor);
+
+    expect(mensagemDoCampo(raiz, vagas)).toBeUndefined();
+    expect(raiz.querySelectorAll('[role="alert"]')).toHaveLength(0);
+    expect(botaoPublicar(raiz).disabled).toBe(false);
+  });
+
+  it.each([
+    ['0', 'mínimo 1 vaga'],
+    ['-1', 'mínimo 1 vaga'],
+    ['5', 'máximo 4 vagas'],
+  ])('recusa %s vaga(s): mostra "%s" e "Publicar" fica desligado', async (valor, mensagem) => {
+    const { raiz, vagas } = await preencherVagas(valor);
+
+    expect(mensagemDoCampo(raiz, vagas)).toBe(mensagem);
+    expect(raiz.querySelectorAll('[role="alert"]')).toHaveLength(1);
+    expect(botaoPublicar(raiz).disabled).toBe(true);
+  });
+});

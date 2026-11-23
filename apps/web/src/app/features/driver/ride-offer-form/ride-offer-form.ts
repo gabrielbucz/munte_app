@@ -23,7 +23,11 @@ export class RideOfferForm {
     neighborhoodId: new FormControl('', { nonNullable: true, validators: Validators.required }),
     pickupPointId: new FormControl('', { nonNullable: true, validators: Validators.required }),
     departureTime: new FormControl('', { nonNullable: true, validators: Validators.required }),
-    seats: new FormControl<number | null>(null, Validators.required),
+    seats: new FormControl<number | null>(null, [
+      Validators.required,
+      Validators.min(1),
+      Validators.max(4),
+    ]),
     notes: new FormControl('', { nonNullable: true }),
   });
 
@@ -40,6 +44,8 @@ export class RideOfferForm {
 
   protected readonly mensagensDeErro: Record<string, string> = {
     required: 'preenchimento obrigatório',
+    min: 'mínimo 1 vaga',
+    max: 'máximo 4 vagas',
   };
 
   constructor() {
