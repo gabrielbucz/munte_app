@@ -59,7 +59,7 @@
   - Teste primeiro: `ride-offer-form.spec.ts` prova que, com a tela recém-aberta, nenhuma mensagem aparece e "Publicar" está desligado; que sair de cada campo obrigatório vazio mostra "preenchimento obrigatório"; que com todos preenchidos (valores válidos) o botão liga; e que observações vazias não bloqueiam. Falha antes porque não há validadores nem mensagens.
   - Arquivos previstos: `features/driver/ride-offer-form/ride-offer-form.{ts,html,spec.ts}`
 
-- [ ] **Tarefa 3 — mostrar só os pontos do bairro escolhido**
+- [x] **Tarefa 3 — mostrar só os pontos do bairro escolhido**
   - Cobre: CA10
   - Teste primeiro: `ride-offer-form.spec.ts` prova que, escolhido um bairro, o campo ponto lista só os 3 pontos dele; e que trocar de bairro desmarca o ponto escolhido antes. Falha antes porque o campo ponto não depende do bairro.
   - Arquivos previstos: `features/driver/ride-offer-form/ride-offer-form.{ts,html,spec.ts}`
