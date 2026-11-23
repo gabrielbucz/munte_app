@@ -54,7 +54,7 @@
   - Teste primeiro: `neighborhood.service.spec.ts` prova o `GET /neighborhoods?_embed=pickupPoints`; `header.spec.ts` prova o link "Oferecer carona" para `/ofertas/nova`; `ride-offer-form.spec.ts` prova, com as rotas reais, que sem sessão `/ofertas/nova` termina em `/entrar` e que com sessão a tela mostra os campos sentido, bairro (com os bairros do service), ponto, horário, vagas e observações. Falha antes porque a rota, o componente, o service e o link não existem.
   - Arquivos previstos: `apps/api/db.json`, `core/models/neighborhood.ts`, `core/services/neighborhood.service.{ts,spec.ts}`, `features/driver/ride-offer-form/ride-offer-form.{ts,html,spec.ts}`, `shared/components/header/header.{ts,spec.ts}`, `app.routes.ts`
 
-- [ ] **Tarefa 2 — exigir os campos obrigatórios, com a mensagem só depois de tocar**
+- [x] **Tarefa 2 — exigir os campos obrigatórios, com a mensagem só depois de tocar**
   - Cobre: CA4, CA9
   - Teste primeiro: `ride-offer-form.spec.ts` prova que, com a tela recém-aberta, nenhuma mensagem aparece e "Publicar" está desligado; que sair de cada campo obrigatório vazio mostra "preenchimento obrigatório"; que com todos preenchidos (valores válidos) o botão liga; e que observações vazias não bloqueiam. Falha antes porque não há validadores nem mensagens.
   - Arquivos previstos: `features/driver/ride-offer-form/ride-offer-form.{ts,html,spec.ts}`
