@@ -1,6 +1,6 @@
 ---
 issue: 3
-status: rascunho   # rascunho | aprovada
+status: aprovada   # rascunho | aprovada
 ---
 
 # US01 — motorista cadastra oferta
