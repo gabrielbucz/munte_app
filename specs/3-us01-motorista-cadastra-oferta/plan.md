@@ -69,7 +69,7 @@
   - Teste primeiro: `ride-offer-form.spec.ts` prova, para cada regra, o par aceita/recusa: 1 e 4 passam; 0 e -1 mostram "mínimo 1 vaga"; 5 mostra "máximo 4 vagas"; e o botão fica desligado nos recusados. Falha antes porque `seats` só é obrigatório.
   - Arquivos previstos: `features/driver/ride-offer-form/ride-offer-form.{ts,html,spec.ts}`
 
-- [ ] **Tarefa 5 — recusar horário no passado e observações longas**
+- [x] **Tarefa 5 — recusar horário no passado e observações longas**
   - Cobre: CA5, CA8
   - Teste primeiro: `horario-futuro.validator.spec.ts` (com relógio simulado) prova que um instante depois de agora passa e que agora e o passado são recusados; `ride-offer-form.spec.ts` prova a mensagem "precisa ser no futuro" e, para observações, que 200 caracteres passam e 201 mostram "máximo 200 caracteres". Falha antes porque não há validador de horário nem limite de tamanho.
   - Arquivos previstos: `features/driver/ride-offer-form/horario-futuro.validator.{ts,spec.ts}`, `features/driver/ride-offer-form/ride-offer-form.{ts,html,spec.ts}`

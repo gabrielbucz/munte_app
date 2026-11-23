@@ -140,19 +140,30 @@ function botaoPublicar(raiz: HTMLElement): HTMLButtonElement {
   return botao!;
 }
 
-function digitar(harness: RouterTestingHarness, campo: HTMLInputElement, valor: string): void {
+function digitar(
+  harness: RouterTestingHarness,
+  campo: HTMLInputElement | HTMLTextAreaElement,
+  valor: string,
+): void {
   campo.value = valor;
   campo.dispatchEvent(new Event('input'));
   harness.detectChanges();
 }
 
-function horarioNoFuturo(): string {
-  const amanha = new Date(Date.now() + 24 * 60 * 60 * 1000);
+const UM_DIA = 24 * 60 * 60 * 1000;
+
+// Texto "AAAA-MM-DDTHH:mm" do <input type="datetime-local">, em hora local (e não UTC).
+function horarioLocal(deslocamentoEmMs: number): string {
+  const instante = new Date(Date.now() + deslocamentoEmMs);
   const doisDigitos = (n: number) => String(n).padStart(2, '0');
   return (
-    `${amanha.getFullYear()}-${doisDigitos(amanha.getMonth() + 1)}-${doisDigitos(amanha.getDate())}` +
-    `T${doisDigitos(amanha.getHours())}:${doisDigitos(amanha.getMinutes())}`
+    `${instante.getFullYear()}-${doisDigitos(instante.getMonth() + 1)}-${doisDigitos(instante.getDate())}` +
+    `T${doisDigitos(instante.getHours())}:${doisDigitos(instante.getMinutes())}`
   );
+}
+
+function horarioNoFuturo(): string {
+  return horarioLocal(UM_DIA);
 }
 
 type CampoObrigatorio = 'Sentido' | 'Bairro' | 'Ponto' | 'Horário' | 'Vagas';
@@ -339,6 +350,54 @@ describe('RideOfferForm: vagas entre 1 e 4 (CA3, CA7, CA9)', () => {
     const { raiz, vagas } = await preencherVagas(valor);
 
     expect(mensagemDoCampo(raiz, vagas)).toBe(mensagem);
+    expect(raiz.querySelectorAll('[role="alert"]')).toHaveLength(1);
+    expect(botaoPublicar(raiz).disabled).toBe(true);
+  });
+});
+
+describe('RideOfferForm: horário no futuro (CA5, CA9)', () => {
+  it('horário no passado mostra "precisa ser no futuro" e "Publicar" fica desligado', async () => {
+    const { harness, raiz } = await abrirFormulario();
+    // Tudo válido menos Horário: só o horário digitado pode desligar "Publicar".
+    preencherTudoMenos(harness, raiz, 'Horário');
+    const horario = campoPorRotulo<HTMLInputElement>(raiz, 'Horário');
+
+    digitar(harness, horario, horarioLocal(-UM_DIA));
+    sair(harness, horario);
+
+    expect(mensagemDoCampo(raiz, horario)).toBe('precisa ser no futuro');
+    expect(raiz.querySelectorAll('[role="alert"]')).toHaveLength(1);
+    expect(botaoPublicar(raiz).disabled).toBe(true);
+  });
+});
+
+describe('RideOfferForm: observações com no máximo 200 caracteres (CA8, CA9)', () => {
+  // Tudo válido: só o tamanho das observações pode desligar "Publicar".
+  async function preencherObservacoes(
+    tamanho: number,
+  ): Promise<{ raiz: HTMLElement; observacoes: HTMLTextAreaElement }> {
+    const { harness, raiz } = await abrirFormulario();
+    preencherTudoMenos(harness, raiz);
+    const observacoes = campoPorRotulo<HTMLTextAreaElement>(raiz, 'Observações');
+    digitar(harness, observacoes, 'a'.repeat(tamanho));
+    sair(harness, observacoes);
+    return { raiz, observacoes };
+  }
+
+  it('aceita 200 caracteres: sem mensagem e "Publicar" ligado', async () => {
+    const { raiz, observacoes } = await preencherObservacoes(200);
+
+    expect(observacoes.getAttribute('aria-invalid')).toBeNull();
+    expect(mensagemDoCampo(raiz, observacoes)).toBeUndefined();
+    expect(raiz.querySelectorAll('[role="alert"]')).toHaveLength(0);
+    expect(botaoPublicar(raiz).disabled).toBe(false);
+  });
+
+  it('recusa 201 caracteres: mostra "máximo 200 caracteres" e "Publicar" fica desligado', async () => {
+    const { raiz, observacoes } = await preencherObservacoes(201);
+
+    expect(observacoes.getAttribute('aria-invalid')).toBe('true');
+    expect(mensagemDoCampo(raiz, observacoes)).toBe('máximo 200 caracteres');
     expect(raiz.querySelectorAll('[role="alert"]')).toHaveLength(1);
     expect(botaoPublicar(raiz).disabled).toBe(true);
   });

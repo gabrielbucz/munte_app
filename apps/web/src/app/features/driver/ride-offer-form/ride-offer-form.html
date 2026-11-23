@@ -3,6 +3,7 @@
 @let pickupPointId = form.controls.pickupPointId;
 @let departureTime = form.controls.departureTime;
 @let seats = form.controls.seats;
+@let notes = form.controls.notes;
 
 <section class="mx-auto flex w-full max-w-md flex-col gap-4 rounded-lg border border-borda bg-superficie p-6">
   <h1 class="text-2xl font-semibold text-texto">Oferecer carona</h1>
@@ -132,9 +133,18 @@
         id="notes"
         formControlName="notes"
         rows="3"
+        [attr.aria-invalid]="notes.invalid && notes.touched ? 'true' : null"
+        [attr.aria-describedby]="notes.invalid && notes.touched ? 'notes-erro' : null"
         class="rounded-lg border border-borda bg-superficie px-3 py-2 text-base text-texto
                focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primaria/25"
       ></textarea>
+      @if (notes.invalid && notes.touched) {
+        <p id="notes-erro" role="alert" class="text-sm font-semibold text-perigo">
+          @for (erro of notes.errors | keyvalue; track erro.key) {
+            {{ mensagensDeErro[erro.key] }}
+          }
+        </p>
+      }
     </div>
 
     <button

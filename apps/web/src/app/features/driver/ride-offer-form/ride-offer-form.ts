@@ -3,6 +3,7 @@ import { Component, computed, inject } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NeighborhoodService } from '../../../core/services/neighborhood.service';
+import { horarioFuturo } from './horario-futuro.validator';
 
 @Component({
   selector: 'app-ride-offer-form',
@@ -22,13 +23,16 @@ export class RideOfferForm {
     }),
     neighborhoodId: new FormControl('', { nonNullable: true, validators: Validators.required }),
     pickupPointId: new FormControl('', { nonNullable: true, validators: Validators.required }),
-    departureTime: new FormControl('', { nonNullable: true, validators: Validators.required }),
+    departureTime: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, horarioFuturo],
+    }),
     seats: new FormControl<number | null>(null, [
       Validators.required,
       Validators.min(1),
       Validators.max(4),
     ]),
-    notes: new FormControl('', { nonNullable: true }),
+    notes: new FormControl('', { nonNullable: true, validators: Validators.maxLength(200) }),
   });
 
   private readonly selectedNeighborhoodId = toSignal(
@@ -46,6 +50,8 @@ export class RideOfferForm {
     required: 'preenchimento obrigatório',
     min: 'mínimo 1 vaga',
     max: 'máximo 4 vagas',
+    horarioFuturo: 'precisa ser no futuro',
+    maxlength: 'máximo 200 caracteres',
   };
 
   constructor() {
