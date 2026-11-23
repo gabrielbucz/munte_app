@@ -17,4 +17,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/inicio/inicio').then((m) => m.Inicio),
     canActivate: [authGuard],
   },
+  {
+    path: 'ofertas/nova',
+    loadComponent: () =>
+      import('./features/driver/ride-offer-form/ride-offer-form').then((m) => m.RideOfferForm),
+    canActivate: [authGuard],
+  },
 ];

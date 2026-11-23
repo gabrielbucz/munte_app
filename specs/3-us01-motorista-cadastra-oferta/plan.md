@@ -49,7 +49,7 @@
 
 ## Tarefas
 
-- [ ] **Tarefa 1 — abrir o formulário de nova oferta pela navegação, só com sessão**
+- [x] **Tarefa 1 — abrir o formulário de nova oferta pela navegação, só com sessão**
   - Cobre: CA13, CA15
   - Teste primeiro: `neighborhood.service.spec.ts` prova o `GET /neighborhoods?_embed=pickupPoints`; `header.spec.ts` prova o link "Oferecer carona" para `/ofertas/nova`; `ride-offer-form.spec.ts` prova, com as rotas reais, que sem sessão `/ofertas/nova` termina em `/entrar` e que com sessão a tela mostra os campos sentido, bairro (com os bairros do service), ponto, horário, vagas e observações. Falha antes porque a rota, o componente, o service e o link não existem.
   - Arquivos previstos: `apps/api/db.json`, `core/models/neighborhood.ts`, `core/services/neighborhood.service.{ts,spec.ts}`, `features/driver/ride-offer-form/ride-offer-form.{ts,html,spec.ts}`, `shared/components/header/header.{ts,spec.ts}`, `app.routes.ts`

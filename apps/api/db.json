@@ -1,3 +1,19 @@
 {
-  "magicLinks": []
+  "magicLinks": [],
+  "neighborhoods": [
+    { "id": "1", "name": "Centro" },
+    { "id": "2", "name": "Vila Nova" },
+    { "id": "3", "name": "Jardim América" }
+  ],
+  "pickupPoints": [
+    { "id": "1", "neighborhoodId": "1", "label": "Praça central", "order": 1 },
+    { "id": "2", "neighborhoodId": "1", "label": "Igreja matriz", "order": 2 },
+    { "id": "3", "neighborhoodId": "1", "label": "Terminal central", "order": 3 },
+    { "id": "4", "neighborhoodId": "2", "label": "Escola estadual", "order": 1 },
+    { "id": "5", "neighborhoodId": "2", "label": "Posto de saúde", "order": 2 },
+    { "id": "6", "neighborhoodId": "2", "label": "Mercado do bairro", "order": 3 },
+    { "id": "7", "neighborhoodId": "3", "label": "Praça do Jardim América", "order": 1 },
+    { "id": "8", "neighborhoodId": "3", "label": "Ginásio de esportes", "order": 2 },
+    { "id": "9", "neighborhoodId": "3", "label": "Ponto final do ônibus", "order": 3 }
+  ]
 }
