@@ -61,17 +61,13 @@ Todas nascem `Draft` — **só o aluno promove a `Ready`**.
 **Critérios de aceite:**
 
 - [ ] **Dado** que informei trajeto (só ida ou só volta), ponto, horário futuro e vagas ≥1, **quando** confirmo a publicação, **então** a oferta fica "Disponível" com confirmação e entra nas minhas ativas.
-- [ ] **Dado** que informei ida e volta com pontos/horários e vagas, **quando** confirmo, **então** criam-se dois trechos vinculados e independentes na busca.
 - [ ] **Dado** que informei ponto dos fixos + observações (ex.: tolerância), **quando** publico, **então** ficam salvos e visíveis nos detalhes.
 - [ ] **Dado** vagas 0/negativa, **quando** tento publicar, **então** bloqueia com "mínimo 1 vaga".
 - [ ] **Dado** horário ou ponto vazio, **quando** tento publicar, **então** destaca "preenchimento obrigatório" e bloqueia.
 - [ ] **Dado** horário no passado, **quando** tento publicar, **então** recusa com "precisa ser no futuro".
 - [ ] **Dado** cadastro parcial, **quando** desisto e confirmo descarte, **então** nada é registrado.
-- [ ] **Dado** motorista com rota habitual salva no turno (matutino/noturno), **quando** inicia nova oferta, **então** vê card "Repetir oferta habitual" com bairro, ponto fixo, veículo e vagas pré-preenchidos; um toque em "Publicar agora" confirma a oferta.
-- [ ] **Dado** motorista abre formulário de nova oferta, **quando** carrega Passo 2, **então** campos de bairro, ponto fixo, veículo e vagas já vêm pré-preenchidos com última viagem do mesmo turno; só horário exige confirmação/ajuste.
-- [ ] **Dado** motorista sem veículo homologado, **quando** tenta acessar formulário de oferta, **então** bloqueia antes do Passo 1 com modal contextual que redireciona para cadastro rápido de placa/modelo.
 
-**Regras relacionadas:** RN01, RN02, RN03, RN10, RN11, RN15
+**Regras relacionadas:** RN01, RN02, RN03, RN10, RN11
 
 ### US02 — busca e filtros · `Must Have` · `L` · Status: `Ready`
 
@@ -174,7 +170,7 @@ Moderação para gerenciar locais fixos e ver métricas. Entra só se sobrar tem
 
 Contador de viagens voluntárias e estimativa de impacto no campus. Cabeçalho registrado — detalhar se entrar.
 
-### US12 — autenticação por e-mail institucional · `Must Have` · `S` · Status: `Done`
+### US12 — autenticação por e-mail institucional · `Must Have` · `S` · Status: `Live`
 
 **Como** aluno de graduação da UTFPR, **eu quero** entrar com meu e-mail institucional (@alunos.utfpr.edu.br), **para que** meu vínculo seja verificado por link de confirmação, sem cadastro manual nem senha local.
 
@@ -203,13 +199,26 @@ Contador de viagens voluntárias e estimativa de impacto no campus. Cabeçalho r
 
 **Regras relacionadas:** RN14
 
+### US14 — oferta de ida e volta e rota habitual · `Must Have` · `M` · Status: `Draft`
+
+**Como** motorista da comunidade UTFPR, **eu quero** publicar ida e volta numa só oferta e repetir minha rota habitual com o formulário já preenchido, **para que** eu ofereça caronas recorrentes com poucos toques.
+
+**Critérios de aceite:**
+
+- [ ] **Dado** que informei ida e volta com pontos/horários e vagas, **quando** confirmo, **então** criam-se dois trechos vinculados e independentes na busca.
+- [ ] **Dado** motorista com rota habitual salva no turno (matutino/noturno), **quando** inicia nova oferta, **então** vê card "Repetir oferta habitual" com bairro, ponto fixo, veículo e vagas pré-preenchidos; um toque em "Publicar agora" confirma a oferta.
+- [ ] **Dado** motorista abre formulário de nova oferta, **quando** carrega Passo 2, **então** campos de bairro, ponto fixo, veículo e vagas já vêm pré-preenchidos com última viagem do mesmo turno; só horário exige confirmação/ajuste.
+- [ ] **Dado** motorista sem veículo homologado, **quando** tenta acessar formulário de oferta, **então** bloqueia antes do Passo 1 com modal contextual que redireciona para cadastro rápido de placa/modelo.
+
+**Regras relacionadas:** RN03, RN15
+
 ## 🛡️ 5. Regras de Negócio (Constraints)
 
 | ID | Regra | Stories |
 | :-- | :---- | :------ |
 | RN01 | Ponto na faculdade sempre o mesmo; no bairro vale 1 dos 3 pontos fixos; sem ponto personalizado, sem GPS | US01, US02 |
 | RN02 | 23 bairros com 3 pontos fixos cada | US02 |
-| RN03 | Motorista informa só ida, só volta, ambos ou depois; cada trajeto com ponto/horário/vagas; pergunta do outro (mesmo/outro/depois); perfil auto | US01 |
+| RN03 | Motorista informa só ida, só volta, ambos ou depois; cada trajeto com ponto/horário/vagas; pergunta do outro (mesmo/outro/depois); perfil auto | US01, US14 |
 | RN04 | Carona filtra por bairro/horário e vê motoristas por ponto/horário | US02 |
 | RN05 | Solicitação unificada se mesmo ponto, separada se distintos; sem duplicada, sem horário sobreposto, sem solicitar a própria | US03 |
 | RN06 | Match = aceite do motorista; baixa vaga(s), unificada baixa Ida+Volta e exige vaga nos dois; zero bloqueia | US03, US04 |
@@ -221,7 +230,7 @@ Contador de viagens voluntárias e estimativa de impacto no campus. Cabeçalho r
 | RN12 | Sem alterar horário/ponto/rota com confirmado sem revalidar; sem aprovar após partida; sem apagar histórico | US04 |
 | RN13 | Sem avaliar antes do encerramento; desistência tardia registrada para reputação; oferecer exige veículo + papel motorista | US05 |
 | RN14 | Autenticação por e-mail institucional; validação por link de confirmação; sem cadastro manual e sem senha local; só vínculo ativo entra | US12, US13 |
-| RN15 | O sistema memoriza última rota do motorista por turno (matutino/noturno) e oferece "Repetir oferta habitual" com 1 clique + pré-preenchimento automático no formulário; motorista sem veículo homologado é bloqueado antes do Passo 1 com redirecionamento para cadastro | US01 |
+| RN15 | O sistema memoriza última rota do motorista por turno (matutino/noturno) e oferece "Repetir oferta habitual" com 1 clique + pré-preenchimento automático no formulário; motorista sem veículo homologado é bloqueado antes do Passo 1 com redirecionamento para cadastro | US14 |
 
 ---
 
@@ -259,6 +268,7 @@ Detalhe de implementação (Service Workers, tempos, canais) fica para o `archit
 | 2026-11-20 | 1.2.0 | Divisão da US12 em US12 (acesso inicial: CA1, CA2, CA3, CA4, CA6, CA7, CA8, CA9) e US13 (recuperação de sessão: CA5). Atualização da RN14 para autenticação por e-mail institucional. |
 | 2026-11-20 | 1.3.0 | Escopo restrito a alunos de graduação: servidores e pós-graduação vão para Fora de Escopo; domínio aceito passa a ser @alunos.utfpr.edu.br (US12, CA1); CA2 deixa de identificar perfil aluno/servidor. |
 | 2026-11-22 | 1.3.1 | US12 implementada (Issue #8): status `Done` e critérios de aceite marcados. |
+| 2026-11-23 | 1.4.0 | Divisão da US01 (#33): US01 fica com a oferta de um trecho (ponto, horário futuro, vagas, observações, descarte); ida e volta, "Repetir oferta habitual", pré-preenchimento por turno e bloqueio sem veículo vão para a nova US14 (`Draft`). RN03 passa a US01 e US14; RN15 passa à US14. US12 corrigida de `Done` para `Live`. |
 
 ---
 
