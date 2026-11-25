@@ -3,6 +3,7 @@ import { Component, ErrorHandler, computed, inject, signal } from '@angular/core
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { MENSAGEM_DE_DESCARTE, PodeSair } from '../../../core/guards/confirmar-descarte.guard';
 import { NovaRideOffer, RideDirection } from '../../../core/models/ride-offer';
 import { FalhaDeRedeError } from '../../../core/services/auth.service';
 import { NeighborhoodService } from '../../../core/services/neighborhood.service';
@@ -14,7 +15,7 @@ import { horarioFuturo } from './horario-futuro.validator';
   imports: [ReactiveFormsModule, KeyValuePipe],
   templateUrl: './ride-offer-form.html',
 })
-export class RideOfferForm {
+export class RideOfferForm implements PodeSair {
   private readonly rideOfferService = inject(RideOfferService);
   private readonly router = inject(Router);
   private readonly errorHandler = inject(ErrorHandler);
@@ -73,10 +74,27 @@ export class RideOfferForm {
     return this.falhaDeRede() ? 'Tentar novamente' : 'Publicar';
   });
 
+  // Ligado depois de publicar ou de um descarte já confirmado no "Cancelar" (CA6):
+  // a saída que vem a seguir não pergunta de novo.
+  private readonly saidaLiberada = signal(false);
+
   constructor() {
     this.form.controls.neighborhoodId.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.form.controls.pickupPointId.reset(''));
+  }
+
+  // Chamado pelo confirmarDescarteGuard (CA6): com o formulário intocado, sair não pergunta.
+  podeSair(): boolean {
+    return this.form.pristine || this.saidaLiberada();
+  }
+
+  // "Cancelar" (CA6): pergunta só se há o que perder; recusando, fica tudo como estava.
+  protected cancelar(): void {
+    if (!this.podeSair() && !window.confirm(MENSAGEM_DE_DESCARTE)) return;
+
+    this.saidaLiberada.set(true);
+    void this.router.navigate(['/inicio']);
   }
 
   // O botão desligado não basta: o submit do formulário (ex.: Enter) chega aqui sem passar por ele.
@@ -101,6 +119,7 @@ export class RideOfferForm {
     this.rideOfferService.criar(nova).subscribe({
       // No sucesso, `enviando` fica ligado: a oferta já existe e a tela está de saída para os detalhes.
       next: (oferta) => {
+        this.saidaLiberada.set(true);
         void this.router.navigate(['/ofertas', oferta.id], { queryParams: { publicada: 1 } });
       },
       error: (erro: unknown) => {

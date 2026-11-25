@@ -674,3 +674,160 @@ describe('RideOfferForm: envio em andamento (CA12)', () => {
     expect(criar).not.toHaveBeenCalled();
   });
 });
+
+describe('RideOfferForm: descartar um cadastro pela metade (CA6)', () => {
+  const PERGUNTA = 'Descartar esta oferta? O que você preencheu será perdido.';
+  const HORARIO_DIGITADO = '2030-01-15T07:30';
+
+  afterEach(() => vi.restoreAllMocks());
+
+  function responder(confirmou: boolean): ReturnType<typeof vi.spyOn> {
+    return vi.spyOn(window, 'confirm').mockReturnValue(confirmou);
+  }
+
+  function botaoCancelar(raiz: HTMLElement): HTMLButtonElement {
+    const botao = Array.from(raiz.querySelectorAll('button')).find(
+      (b) => b.textContent?.trim() === 'Cancelar',
+    );
+    expect(botao, 'botão "Cancelar"').toBeTruthy();
+    return botao!;
+  }
+
+  async function cancelar(harness: RouterTestingHarness, raiz: HTMLElement): Promise<void> {
+    botaoCancelar(raiz).click();
+    harness.detectChanges();
+    await harness.fixture.whenStable();
+  }
+
+  // O que um link (routerLink) faz ao ser tocado: pede ao Router a navegação para outro endereço.
+  async function sairPorLink(harness: RouterTestingHarness): Promise<void> {
+    await TestBed.inject(Router).navigateByUrl('/inicio');
+    harness.detectChanges();
+  }
+
+  // Alterado, e não completo: o cadastro pela metade do CA6.
+  function preencherPelaMetade(harness: RouterTestingHarness, raiz: HTMLElement): void {
+    escolher(harness, campoPorRotulo<HTMLSelectElement>(raiz, 'Bairro'), 'Centro');
+    digitar(harness, campoPorRotulo<HTMLInputElement>(raiz, 'Horário'), HORARIO_DIGITADO);
+  }
+
+  function esperarValoresMantidos(raiz: HTMLElement): void {
+    expect(campoPorRotulo<HTMLSelectElement>(raiz, 'Bairro').value).toBe('1');
+    expect(campoPorRotulo<HTMLInputElement>(raiz, 'Horário').value).toBe(HORARIO_DIGITADO);
+  }
+
+  it('"Cancelar" é um botão comum, que não envia o formulário', async () => {
+    const { raiz } = await abrirFormulario();
+
+    expect(botaoCancelar(raiz).type).toBe('button');
+  });
+
+  it('com o formulário intocado, "Cancelar" leva a /inicio sem perguntar', async () => {
+    const confirmar = responder(false);
+    const { harness, raiz } = await abrirFormulario();
+
+    await cancelar(harness, raiz);
+
+    expect(confirmar).not.toHaveBeenCalled();
+    expect(TestBed.inject(Router).url).toBe('/inicio');
+  });
+
+  it('com o formulário alterado, "Cancelar" pergunta uma vez; confirmando, nada é enviado e vai para /inicio', async () => {
+    const confirmar = responder(true);
+    const { harness, raiz } = await abrirFormulario();
+    preencherPelaMetade(harness, raiz);
+
+    await cancelar(harness, raiz);
+
+    expect(confirmar).toHaveBeenCalledTimes(1);
+    expect(confirmar).toHaveBeenCalledWith(PERGUNTA);
+    expect(criar).not.toHaveBeenCalled();
+    expect(TestBed.inject(Router).url).toBe('/inicio');
+  });
+
+  it('com o formulário completo e válido, "Cancelar" confirmado também não envia nada', async () => {
+    responder(true);
+    const { harness, raiz } = await abrirFormulario();
+    preencherTudoMenos(harness, raiz);
+
+    await cancelar(harness, raiz);
+
+    expect(criar).not.toHaveBeenCalled();
+    expect(TestBed.inject(Router).url).toBe('/inicio');
+  });
+
+  it('com o formulário alterado, "Cancelar" recusado mantém a tela com o que foi preenchido', async () => {
+    const confirmar = responder(false);
+    const { harness, raiz } = await abrirFormulario();
+    preencherPelaMetade(harness, raiz);
+
+    await cancelar(harness, raiz);
+
+    expect(confirmar).toHaveBeenCalledWith(PERGUNTA);
+    expect(TestBed.inject(Router).url).toBe('/ofertas/nova');
+    esperarValoresMantidos(raiz);
+  });
+
+  it('com o formulário alterado, sair por um link pergunta; confirmando, nada é enviado e vai para /inicio', async () => {
+    const confirmar = responder(true);
+    const { harness, raiz } = await abrirFormulario();
+    preencherPelaMetade(harness, raiz);
+
+    await sairPorLink(harness);
+
+    expect(confirmar).toHaveBeenCalledTimes(1);
+    expect(confirmar).toHaveBeenCalledWith(PERGUNTA);
+    expect(criar).not.toHaveBeenCalled();
+    expect(TestBed.inject(Router).url).toBe('/inicio');
+  });
+
+  it('com o formulário alterado, sair por um link e recusar mantém a tela com o que foi preenchido', async () => {
+    const confirmar = responder(false);
+    const { harness, raiz } = await abrirFormulario();
+    preencherPelaMetade(harness, raiz);
+
+    await sairPorLink(harness);
+
+    expect(confirmar).toHaveBeenCalledWith(PERGUNTA);
+    expect(TestBed.inject(Router).url).toBe('/ofertas/nova');
+    esperarValoresMantidos(raiz);
+  });
+
+  it('com o formulário intocado (só passando pelos campos, sem alterar), sair por um link não pergunta', async () => {
+    const confirmar = responder(false);
+    const { harness, raiz } = await abrirFormulario();
+    sair(harness, campoPorRotulo(raiz, 'Bairro'));
+    sair(harness, campoPorRotulo(raiz, 'Horário'));
+
+    await sairPorLink(harness);
+
+    expect(confirmar).not.toHaveBeenCalled();
+    expect(TestBed.inject(Router).url).toBe('/inicio');
+  });
+
+  it('depois de publicar, a ida para os detalhes da oferta não pergunta', async () => {
+    const confirmar = responder(false);
+    const { harness, raiz } = await abrirFormulario();
+    preencherTudoMenos(harness, raiz);
+
+    botaoPublicar(raiz).click();
+    await harness.fixture.whenStable();
+
+    expect(confirmar).not.toHaveBeenCalled();
+    expect(TestBed.inject(Router).url).toBe('/ofertas/42?publicada=1');
+  });
+
+  it('depois de uma falha de rede, com o formulário preenchido, sair por um link ainda pergunta', async () => {
+    const confirmar = responder(false);
+    const { harness, raiz } = await abrirFormulario();
+    preencherTudoMenos(harness, raiz);
+    criar.mockReturnValueOnce(throwError(() => new FalhaDeRedeError()));
+    botaoPublicar(raiz).click();
+    harness.detectChanges();
+
+    await sairPorLink(harness);
+
+    expect(confirmar).toHaveBeenCalledWith(PERGUNTA);
+    expect(TestBed.inject(Router).url).toBe('/ofertas/nova');
+  });
+});

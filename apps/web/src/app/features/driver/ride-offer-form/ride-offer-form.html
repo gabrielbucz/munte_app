@@ -153,16 +153,29 @@
       </p>
     }
 
-    <button
-      type="submit"
-      [disabled]="form.invalid || enviando()"
-      class="rounded-lg border border-primaria bg-primaria px-4 py-2 text-sm font-semibold text-white
-             hover:border-primaria-hover hover:bg-primaria-hover
-             focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primaria/25
-             disabled:cursor-not-allowed disabled:border-desabilitado disabled:bg-desabilitado
-             disabled:text-desabilitado-texto disabled:opacity-65"
-    >
-      {{ rotuloDoBotao() }}
-    </button>
+    <div class="flex flex-col gap-2">
+      <button
+        type="submit"
+        [disabled]="form.invalid || enviando()"
+        class="rounded-lg border border-primaria bg-primaria px-4 py-2 text-sm font-semibold text-white
+               hover:border-primaria-hover hover:bg-primaria-hover
+               focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primaria/25
+               disabled:cursor-not-allowed disabled:border-desabilitado disabled:bg-desabilitado
+               disabled:text-desabilitado-texto disabled:opacity-65"
+      >
+        {{ rotuloDoBotao() }}
+      </button>
+
+      <!-- type="button": dentro do <form>, sem ele o "Cancelar" enviaria a oferta. -->
+      <button
+        type="button"
+        (click)="cancelar()"
+        class="rounded-lg border border-borda bg-superficie px-4 py-2 text-sm font-semibold text-texto
+               hover:border-primaria-hover hover:text-primaria-hover
+               focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primaria/25"
+      >
+        Cancelar
+      </button>
+    </div>
   </form>
 </section>

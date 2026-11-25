@@ -94,7 +94,7 @@
   - Teste primeiro: `ride-offer-form.spec.ts` prova que, com o envio pendente (um `Subject` que ainda não emitiu), o botão está desligado com "Publicando…" e um segundo clique não chama o service de novo; e que o botão volta ao normal depois de uma falha. Falha antes porque não existe estado de envio.
   - Arquivos previstos: `features/driver/ride-offer-form/ride-offer-form.{ts,html,spec.ts}`
 
-- [ ] **Tarefa 10 — confirmar o descarte de um cadastro pela metade**
+- [x] **Tarefa 10 — confirmar o descarte de um cadastro pela metade**
   - Cobre: CA6
   - Teste primeiro: `confirmar-descarte.guard.spec.ts` prova que o guard libera quando `podeSair()` é verdadeiro e pergunta quando não é; `ride-offer-form.spec.ts` prova que, com o formulário alterado, "Cancelar" e a saída por link perguntam "Descartar esta oferta? O que você preencheu será perdido." — confirmando, nada é enviado e a tela vai para `/inicio`; recusando, os valores continuam — e que, com o formulário intocado ou depois de publicar, sair não pergunta. Falha antes porque não há guard nem "Cancelar".
   - Arquivos previstos: `core/guards/confirmar-descarte.guard.{ts,spec.ts}`, `features/driver/ride-offer-form/ride-offer-form.{ts,html,spec.ts}`, `app.routes.ts`
