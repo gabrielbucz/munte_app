@@ -82,7 +82,7 @@
 - [ ] **Tarefa 7 — publicar a oferta e levar o motorista aos detalhes**
   - Cobre: CA1, CA2 (ficam salvos)
   - Teste primeiro: `ride-offer.service.spec.ts` prova que `criar` faz `POST /rideOffers` com o motorista da sessão, `status: 'available'`, `availableSeats` igual a `totalSeats`, as observações e `createdAt`; `ride-offer-form.spec.ts` prova que publicar um formulário válido chama o service com os dados digitados e navega para `/ofertas/<id>?publicada=1`. Falha antes porque não há `criar` nem envio.
-  - Arquivos previstos: `apps/api/db.json` (a coleção `rideOffers: []`, para o `POST /rideOffers` do json-server existir), `core/services/ride-offer.service.{ts,spec.ts}`, `features/driver/ride-offer-form/ride-offer-form.{ts,html,spec.ts}`
+  - Arquivos previstos: `apps/api/db.json` (a coleção `rideOffers: []`, para o `POST /rideOffers` do json-server existir), `core/models/ride-offer.ts` (o tipo `NovaRideOffer`, que só a Tarefa 7 usa), `core/services/ride-offer.service.{ts,spec.ts}`, `features/driver/ride-offer-form/ride-offer-form.{ts,html,spec.ts}`
 
 - [ ] **Tarefa 8 — avisar quando o servidor não responde, sem perder o que foi digitado**
   - Cobre: CA11
