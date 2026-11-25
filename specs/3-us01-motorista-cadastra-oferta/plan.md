@@ -89,7 +89,7 @@
   - Teste primeiro: `ride-offer.service.spec.ts` prova que `status 0` vira `FalhaDeRedeError`; `ride-offer-form.spec.ts` prova que, com o service falhando, aparece "Não foi possível publicar a oferta. Verifique sua conexão e tente novamente.", os campos mantêm os valores e "Tentar novamente" reenvia. Falha antes porque a falha não é tratada.
   - Arquivos previstos: `core/services/ride-offer.service.{ts,spec.ts}`, `features/driver/ride-offer-form/ride-offer-form.{ts,html,spec.ts}`
 
-- [ ] **Tarefa 9 — impedir a segunda oferta no clique duplo**
+- [x] **Tarefa 9 — impedir a segunda oferta no clique duplo**
   - Cobre: CA12
   - Teste primeiro: `ride-offer-form.spec.ts` prova que, com o envio pendente (um `Subject` que ainda não emitiu), o botão está desligado com "Publicando…" e um segundo clique não chama o service de novo; e que o botão volta ao normal depois de uma falha. Falha antes porque não existe estado de envio.
   - Arquivos previstos: `features/driver/ride-offer-form/ride-offer-form.{ts,html,spec.ts}`

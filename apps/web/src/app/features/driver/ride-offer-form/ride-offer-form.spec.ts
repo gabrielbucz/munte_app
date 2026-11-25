@@ -581,3 +581,96 @@ describe('RideOfferForm: servidor sem resposta ao publicar (CA11)', () => {
     expect(TestBed.inject(Router).url).toBe('/ofertas/nova');
   });
 });
+
+describe('RideOfferForm: envio em andamento (CA12)', () => {
+  function botaoDeEnvio(raiz: HTMLElement): HTMLButtonElement {
+    const botao = raiz.querySelector<HTMLButtonElement>('button[type="submit"]');
+    expect(botao, 'botão de envio').toBeTruthy();
+    return botao!;
+  }
+
+  // O Enter num campo dispara o submit do formulário sem passar pelo clique no botão.
+  function enviarPeloFormulario(harness: RouterTestingHarness, raiz: HTMLElement): void {
+    raiz.querySelector('form')!.dispatchEvent(new Event('submit'));
+    harness.detectChanges();
+  }
+
+  // Preenche tudo e toca em "Publicar" com o servidor ainda sem responder.
+  async function publicarComEnvioPendente(): Promise<{
+    harness: RouterTestingHarness;
+    raiz: HTMLElement;
+    resposta: Subject<RideOffer>;
+  }> {
+    const { harness, raiz } = await abrirFormulario();
+    preencherTudoMenos(harness, raiz);
+    const resposta = new Subject<RideOffer>();
+    criar.mockReturnValueOnce(resposta);
+
+    botaoPublicar(raiz).click();
+    harness.detectChanges();
+    return { harness, raiz, resposta };
+  }
+
+  it('com o envio pendente, o botão fica desligado com o texto "Publicando…"', async () => {
+    const { raiz } = await publicarComEnvioPendente();
+
+    const botao = botaoDeEnvio(raiz);
+    expect(botao.disabled).toBe(true);
+    expect(botao.textContent?.trim()).toBe('Publicando…');
+    expect(criar).toHaveBeenCalledTimes(1);
+  });
+
+  it('com o envio pendente, um segundo toque ou um Enter não chamam o service de novo', async () => {
+    const { harness, raiz } = await publicarComEnvioPendente();
+
+    botaoDeEnvio(raiz).click();
+    harness.detectChanges();
+    enviarPeloFormulario(harness, raiz);
+
+    expect(criar).toHaveBeenCalledTimes(1);
+  });
+
+  it('depois do sucesso, enquanto a tela ainda não saiu, um novo envio não chama o service de novo', async () => {
+    const { harness, raiz, resposta } = await publicarComEnvioPendente();
+    const nova = criar.mock.calls[0][0] as NovaRideOffer;
+
+    resposta.next(ofertaCriada(nova));
+    resposta.complete();
+    enviarPeloFormulario(harness, raiz);
+
+    expect(criar).toHaveBeenCalledTimes(1);
+    await harness.fixture.whenStable();
+    expect(TestBed.inject(Router).url).toBe('/ofertas/42?publicada=1');
+  });
+
+  it('depois de uma falha de rede, o botão volta a ligar, como "Tentar novamente"', async () => {
+    const { harness, raiz, resposta } = await publicarComEnvioPendente();
+
+    resposta.error(new FalhaDeRedeError());
+    harness.detectChanges();
+
+    const botao = botaoDeEnvio(raiz);
+    expect(botao.disabled).toBe(false);
+    expect(botao.textContent?.trim()).toBe('Tentar novamente');
+  });
+
+  it('depois de um erro que não é de rede, o botão volta a ligar, como "Publicar"', async () => {
+    const { harness, raiz, resposta } = await publicarComEnvioPendente();
+
+    resposta.error(new HttpErrorResponse({ status: 500 }));
+    harness.detectChanges();
+
+    const botao = botaoDeEnvio(raiz);
+    expect(botao.disabled).toBe(false);
+    expect(botao.textContent?.trim()).toBe('Publicar');
+  });
+
+  it('com o formulário inválido, enviar pelo Enter não chama o service', async () => {
+    const { harness, raiz } = await abrirFormulario();
+    preencherTudoMenos(harness, raiz, 'Vagas');
+
+    enviarPeloFormulario(harness, raiz);
+
+    expect(criar).not.toHaveBeenCalled();
+  });
+});

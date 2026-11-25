@@ -65,14 +65,25 @@ export class RideOfferForm {
   // O servidor não respondeu ao publicar (CA11): o formulário fica como estava, com o aviso.
   protected readonly falhaDeRede = signal(false);
 
+  // Envio em andamento (CA12): o botão desliga e um segundo envio não chega ao service.
+  protected readonly enviando = signal(false);
+
+  protected readonly rotuloDoBotao = computed(() => {
+    if (this.enviando()) return 'Publicando…';
+    return this.falhaDeRede() ? 'Tentar novamente' : 'Publicar';
+  });
+
   constructor() {
     this.form.controls.neighborhoodId.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.form.controls.pickupPointId.reset(''));
   }
 
-  // "Publicar" só liga com o formulário válido (CA9): aqui o sentido e as vagas já estão preenchidos.
+  // O botão desligado não basta: o submit do formulário (ex.: Enter) chega aqui sem passar por ele.
   protected publicar(): void {
+    if (this.form.invalid || this.enviando()) return;
+
+    // Daqui em diante o formulário é válido (CA9): o sentido e as vagas já estão preenchidos.
     const { direction, neighborhoodId, pickupPointId, departureTime, seats, notes } =
       this.form.getRawValue();
     const nova: NovaRideOffer = {
@@ -86,11 +97,14 @@ export class RideOfferForm {
     };
 
     this.falhaDeRede.set(false);
+    this.enviando.set(true);
     this.rideOfferService.criar(nova).subscribe({
+      // No sucesso, `enviando` fica ligado: a oferta já existe e a tela está de saída para os detalhes.
       next: (oferta) => {
         void this.router.navigate(['/ofertas', oferta.id], { queryParams: { publicada: 1 } });
       },
       error: (erro: unknown) => {
+        this.enviando.set(false);
         if (erro instanceof FalhaDeRedeError) {
           this.falhaDeRede.set(true);
           return;
