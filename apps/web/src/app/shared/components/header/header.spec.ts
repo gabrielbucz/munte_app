@@ -46,6 +46,24 @@ describe('Header', () => {
     expect(entrar?.getAttribute('href')).toBe('/entrar');
   });
 
+  it('CA15 (US01): mostra o link "Oferecer carona" na barra superior e na gaveta, apontando para /ofertas/nova', async () => {
+    const { fixture, raiz } = await criarHeader();
+
+    const daBarra = Array.from(raiz.querySelectorAll<HTMLAnchorElement>('header nav a')).find(
+      (link) => link.textContent?.trim() === 'Oferecer carona',
+    );
+    expect(daBarra?.getAttribute('href')).toBe('/ofertas/nova');
+
+    botaoMenu(raiz).click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const daGaveta = Array.from(gaveta(raiz)?.querySelectorAll<HTMLAnchorElement>('a') ?? []).find(
+      (link) => link.textContent?.trim() === 'Oferecer carona',
+    );
+    expect(daGaveta?.getAttribute('href')).toBe('/ofertas/nova');
+  });
+
   it('CA8: com a gaveta fechada, tocar no ☰ abre a gaveta e mostra o link "Entrar"', async () => {
     const { fixture, raiz } = await criarHeader();
 

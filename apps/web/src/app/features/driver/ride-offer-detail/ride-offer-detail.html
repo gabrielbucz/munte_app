@@ -1,0 +1,56 @@
+<section class="mx-auto flex w-full max-w-md flex-col gap-4 rounded-lg border border-borda bg-superficie p-6">
+  @if (oferta(); as oferta) {
+    @if (publicada()) {
+      <p role="status" class="text-sm font-semibold text-sucesso">Oferta publicada.</p>
+    }
+    <h1 class="text-2xl font-semibold text-texto">Oferta de carona</h1>
+    @let ponto = oferta.pickupPoint.label;
+    <dl class="flex flex-col gap-3">
+      <div class="flex flex-col gap-1">
+        <dt class="text-sm font-semibold text-texto-suave">Sentido</dt>
+        <dd class="text-base text-texto">{{ oferta.direction === 'outbound' ? 'Ida' : 'Volta' }}</dd>
+      </div>
+      <div class="flex flex-col gap-1">
+        <dt class="text-sm font-semibold text-texto-suave">Bairro</dt>
+        <dd class="text-base text-texto">{{ oferta.neighborhood.name }}</dd>
+      </div>
+      <div class="flex flex-col gap-1">
+        <dt class="text-sm font-semibold text-texto-suave">Ponto</dt>
+        <dd class="text-base text-texto">{{ ponto }}</dd>
+      </div>
+      <div class="flex flex-col gap-1">
+        <dt class="text-sm font-semibold text-texto-suave">Trajeto</dt>
+        <dd class="text-base text-texto">
+          @if (oferta.direction === 'outbound') {
+            {{ ponto }} → {{ pontoNaFaculdade }}
+          } @else {
+            {{ pontoNaFaculdade }} → {{ ponto }}
+          }
+        </dd>
+      </div>
+      <div class="flex flex-col gap-1">
+        <dt class="text-sm font-semibold text-texto-suave">Horário</dt>
+        <dd class="text-base text-texto">{{ oferta.departureTime | date: "dd/MM 'às' HH:mm" }}</dd>
+      </div>
+      <div class="flex flex-col gap-1">
+        <dt class="text-sm font-semibold text-texto-suave">Vagas</dt>
+        <dd class="text-base text-texto">{{ oferta.availableSeats }}</dd>
+      </div>
+      @if (oferta.notes) {
+        <div class="flex flex-col gap-1">
+          <dt class="text-sm font-semibold text-texto-suave">Observações</dt>
+          <dd class="text-base text-texto">{{ oferta.notes }}</dd>
+        </div>
+      }
+    </dl>
+  } @else if (oferta() === null) {
+    <p role="alert" class="text-sm font-semibold text-perigo">Oferta não encontrada.</p>
+    <a
+      routerLink="/inicio"
+      class="text-sm font-semibold text-primaria hover:text-primaria-hover
+             focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primaria/25"
+    >
+      Voltar para o Início
+    </a>
+  }
+</section>

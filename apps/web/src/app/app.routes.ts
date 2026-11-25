@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { confirmarDescarteGuard } from './core/guards/confirmar-descarte.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'inicio', pathMatch: 'full' },
@@ -16,5 +17,20 @@ export const routes: Routes = [
     path: 'inicio',
     loadComponent: () => import('./features/inicio/inicio').then((m) => m.Inicio),
     canActivate: [authGuard],
+  },
+  {
+    path: 'ofertas/nova',
+    loadComponent: () =>
+      import('./features/driver/ride-offer-form/ride-offer-form').then((m) => m.RideOfferForm),
+    canActivate: [authGuard],
+    canDeactivate: [confirmarDescarteGuard],
+  },
+  // Depois de ofertas/nova: senão "nova" seria lida como o :id de uma oferta.
+  {
+    path: 'ofertas/:id',
+    loadComponent: () =>
+      import('./features/driver/ride-offer-detail/ride-offer-detail').then(
+        (m) => m.RideOfferDetail,
+      ),
   },
 ];

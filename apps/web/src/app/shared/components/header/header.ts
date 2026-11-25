@@ -12,7 +12,12 @@ interface LinkNavegacao {
   templateUrl: './header.html',
 })
 export class Header {
-  protected readonly links: readonly LinkNavegacao[] = [{ rotulo: 'Entrar', caminho: '/entrar' }];
+  // O link "Oferecer carona" aparece sempre: o Header não conhece a sessão (shared/ não importa
+  // core/); sem sessão, o authGuard da rota leva à tela Entrar.
+  protected readonly links: readonly LinkNavegacao[] = [
+    { rotulo: 'Entrar', caminho: '/entrar' },
+    { rotulo: 'Oferecer carona', caminho: '/ofertas/nova' },
+  ];
 
   protected readonly menuAberto = signal(false);
 

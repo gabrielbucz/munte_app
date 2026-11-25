@@ -1,0 +1,181 @@
+@let direction = form.controls.direction;
+@let neighborhoodId = form.controls.neighborhoodId;
+@let pickupPointId = form.controls.pickupPointId;
+@let departureTime = form.controls.departureTime;
+@let seats = form.controls.seats;
+@let notes = form.controls.notes;
+
+<section class="mx-auto flex w-full max-w-md flex-col gap-4 rounded-lg border border-borda bg-superficie p-6">
+  <h1 class="text-2xl font-semibold text-texto">Oferecer carona</h1>
+
+  <form [formGroup]="form" (ngSubmit)="publicar()" class="flex flex-col gap-4">
+    <fieldset
+      class="flex flex-col gap-2"
+      [attr.aria-describedby]="direction.invalid && direction.touched ? 'direction-erro' : null"
+    >
+      <legend class="text-sm font-semibold text-texto">Sentido</legend>
+      <div class="flex gap-4">
+        <label class="flex items-center gap-2 text-base text-texto">
+          <input type="radio" formControlName="direction" value="outbound" />
+          Ida
+        </label>
+        <label class="flex items-center gap-2 text-base text-texto">
+          <input type="radio" formControlName="direction" value="return" />
+          Volta
+        </label>
+      </div>
+      @if (direction.invalid && direction.touched) {
+        <p id="direction-erro" role="alert" class="text-sm font-semibold text-perigo">
+          @for (erro of direction.errors | keyvalue; track erro.key) {
+            {{ mensagensDeErro[erro.key] }}
+          }
+        </p>
+      }
+    </fieldset>
+
+    <div class="flex flex-col gap-2">
+      <label for="neighborhoodId" class="text-sm font-semibold text-texto">Bairro</label>
+      <select
+        id="neighborhoodId"
+        formControlName="neighborhoodId"
+        [attr.aria-invalid]="neighborhoodId.invalid && neighborhoodId.touched ? 'true' : null"
+        [attr.aria-describedby]="
+          neighborhoodId.invalid && neighborhoodId.touched ? 'neighborhoodId-erro' : null
+        "
+        class="rounded-lg border border-borda bg-superficie px-3 py-2 text-base text-texto
+               focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primaria/25"
+      >
+        <option value="" disabled>Selecione</option>
+        @for (neighborhood of neighborhoods(); track neighborhood.id) {
+          <option [value]="neighborhood.id">{{ neighborhood.name }}</option>
+        }
+      </select>
+      @if (neighborhoodId.invalid && neighborhoodId.touched) {
+        <p id="neighborhoodId-erro" role="alert" class="text-sm font-semibold text-perigo">
+          @for (erro of neighborhoodId.errors | keyvalue; track erro.key) {
+            {{ mensagensDeErro[erro.key] }}
+          }
+        </p>
+      }
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label for="pickupPointId" class="text-sm font-semibold text-texto">Ponto</label>
+      <select
+        id="pickupPointId"
+        formControlName="pickupPointId"
+        [attr.aria-invalid]="pickupPointId.invalid && pickupPointId.touched ? 'true' : null"
+        [attr.aria-describedby]="
+          pickupPointId.invalid && pickupPointId.touched ? 'pickupPointId-erro' : null
+        "
+        class="rounded-lg border border-borda bg-superficie px-3 py-2 text-base text-texto
+               focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primaria/25"
+      >
+        <option value="" disabled>Selecione</option>
+        @for (pickupPoint of pickupPoints(); track pickupPoint.id) {
+          <option [value]="pickupPoint.id">{{ pickupPoint.label }}</option>
+        }
+      </select>
+      @if (pickupPointId.invalid && pickupPointId.touched) {
+        <p id="pickupPointId-erro" role="alert" class="text-sm font-semibold text-perigo">
+          @for (erro of pickupPointId.errors | keyvalue; track erro.key) {
+            {{ mensagensDeErro[erro.key] }}
+          }
+        </p>
+      }
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label for="departureTime" class="text-sm font-semibold text-texto">Horário</label>
+      <input
+        id="departureTime"
+        type="datetime-local"
+        formControlName="departureTime"
+        [attr.aria-invalid]="departureTime.invalid && departureTime.touched ? 'true' : null"
+        [attr.aria-describedby]="
+          departureTime.invalid && departureTime.touched ? 'departureTime-erro' : null
+        "
+        class="rounded-lg border border-borda bg-superficie px-3 py-2 text-base text-texto
+               focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primaria/25"
+      />
+      @if (departureTime.invalid && departureTime.touched) {
+        <p id="departureTime-erro" role="alert" class="text-sm font-semibold text-perigo">
+          @for (erro of departureTime.errors | keyvalue; track erro.key) {
+            {{ mensagensDeErro[erro.key] }}
+          }
+        </p>
+      }
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label for="seats" class="text-sm font-semibold text-texto">Vagas</label>
+      <input
+        id="seats"
+        type="number"
+        formControlName="seats"
+        [attr.aria-invalid]="seats.invalid && seats.touched ? 'true' : null"
+        [attr.aria-describedby]="seats.invalid && seats.touched ? 'seats-erro' : null"
+        class="rounded-lg border border-borda bg-superficie px-3 py-2 text-base text-texto
+               focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primaria/25"
+      />
+      @if (seats.invalid && seats.touched) {
+        <p id="seats-erro" role="alert" class="text-sm font-semibold text-perigo">
+          @for (erro of seats.errors | keyvalue; track erro.key) {
+            {{ mensagensDeErro[erro.key] }}
+          }
+        </p>
+      }
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label for="notes" class="text-sm font-semibold text-texto">Observações</label>
+      <textarea
+        id="notes"
+        formControlName="notes"
+        rows="3"
+        [attr.aria-invalid]="notes.invalid && notes.touched ? 'true' : null"
+        [attr.aria-describedby]="notes.invalid && notes.touched ? 'notes-erro' : null"
+        class="rounded-lg border border-borda bg-superficie px-3 py-2 text-base text-texto
+               focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primaria/25"
+      ></textarea>
+      @if (notes.invalid && notes.touched) {
+        <p id="notes-erro" role="alert" class="text-sm font-semibold text-perigo">
+          @for (erro of notes.errors | keyvalue; track erro.key) {
+            {{ mensagensDeErro[erro.key] }}
+          }
+        </p>
+      }
+    </div>
+
+    @if (falhaDeRede()) {
+      <p role="alert" class="text-sm font-semibold text-perigo">
+        Não foi possível publicar a oferta. Verifique sua conexão e tente novamente.
+      </p>
+    }
+
+    <div class="flex flex-col gap-2">
+      <button
+        type="submit"
+        [disabled]="form.invalid || enviando()"
+        class="rounded-lg border border-primaria bg-primaria px-4 py-2 text-sm font-semibold text-white
+               hover:border-primaria-hover hover:bg-primaria-hover
+               focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primaria/25
+               disabled:cursor-not-allowed disabled:border-desabilitado disabled:bg-desabilitado
+               disabled:text-desabilitado-texto disabled:opacity-65"
+      >
+        {{ rotuloDoBotao() }}
+      </button>
+
+      <!-- type="button": dentro do <form>, sem ele o "Cancelar" enviaria a oferta. -->
+      <button
+        type="button"
+        (click)="cancelar()"
+        class="rounded-lg border border-borda bg-superficie px-4 py-2 text-sm font-semibold text-texto
+               hover:border-primaria-hover hover:text-primaria-hover
+               focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primaria/25"
+      >
+        Cancelar
+      </button>
+    </div>
+  </form>
+</section>
