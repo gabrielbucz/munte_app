@@ -3,7 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, catchError, of, throwError } from 'rxjs';
 import { API_URL } from '../config/api.config';
 import { NovaRideOffer, RideOffer, RideOfferDetalhada } from '../models/ride-offer';
-import { AuthService } from './auth.service';
+import { AuthService, FalhaDeRedeError } from './auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class RideOfferService {
@@ -11,7 +11,8 @@ export class RideOfferService {
   private readonly authService = inject(AuthService);
 
   // A oferta nasce "Disponível", com todas as vagas livres, no nome do motorista da sessão.
-  // O id vem do json-server na resposta.
+  // O id vem do json-server na resposta. Sem resposta do servidor (status 0), o erro vira
+  // FalhaDeRedeError (CA11), para o componente não conhecer HTTP; os demais propagam como estão.
   criar(nova: NovaRideOffer): Observable<RideOffer> {
     const oferta: Omit<RideOffer, 'id'> = {
       // TODO #25: o motorista é o e-mail da sessão simulada, e não um usuário do Supabase Auth.
@@ -22,7 +23,15 @@ export class RideOfferService {
       status: 'available',
       createdAt: new Date().toISOString(),
     };
-    return this.http.post<RideOffer>(`${API_URL}/rideOffers`, oferta);
+    return this.http
+      .post<RideOffer>(`${API_URL}/rideOffers`, oferta)
+      .pipe(
+        catchError((erro: unknown) =>
+          throwError(() =>
+            erro instanceof HttpErrorResponse && erro.status === 0 ? new FalhaDeRedeError() : erro,
+          ),
+        ),
+      );
   }
 
   // A oferta já com o bairro e o ponto (o _expand do json-server 0.17 junta pelo

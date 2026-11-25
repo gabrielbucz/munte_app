@@ -147,6 +147,12 @@
       }
     </div>
 
+    @if (falhaDeRede()) {
+      <p role="alert" class="text-sm font-semibold text-perigo">
+        Não foi possível publicar a oferta. Verifique sua conexão e tente novamente.
+      </p>
+    }
+
     <button
       type="submit"
       [disabled]="form.invalid"
@@ -156,7 +162,7 @@
              disabled:cursor-not-allowed disabled:border-desabilitado disabled:bg-desabilitado
              disabled:text-desabilitado-texto disabled:opacity-65"
     >
-      Publicar
+      {{ falhaDeRede() ? 'Tentar novamente' : 'Publicar' }}
     </button>
   </form>
 </section>

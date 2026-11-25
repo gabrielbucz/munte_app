@@ -1,11 +1,11 @@
-import { provideHttpClient } from '@angular/common/http';
+import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { firstValueFrom } from 'rxjs';
 import { API_URL } from '../config/api.config';
 import { NovaRideOffer, RideOffer, RideOfferDetalhada } from '../models/ride-offer';
-import { AuthService } from './auth.service';
+import { AuthService, FalhaDeRedeError } from './auth.service';
 import { RideOfferService } from './ride-offer.service';
 
 const OFERTA: RideOfferDetalhada = {
@@ -133,5 +133,26 @@ describe('RideOfferService.criar', () => {
     req.flush(criada);
 
     expect(await resultado).toEqual(criada);
+  });
+
+  it('CA11: sem resposta do servidor (status 0) no POST /rideOffers vira FalhaDeRedeError', async () => {
+    const resultado = firstValueFrom(service.criar(NOVA));
+
+    http.expectOne(`${API_URL}/rideOffers`).error(new ProgressEvent('error'));
+
+    await expect(resultado).rejects.toBeInstanceOf(FalhaDeRedeError);
+  });
+
+  it('CA11: resposta de erro do servidor (500) não vira FalhaDeRedeError e propaga como está', async () => {
+    const resultado = firstValueFrom(service.criar(NOVA));
+
+    http
+      .expectOne(`${API_URL}/rideOffers`)
+      .flush(null, { status: 500, statusText: 'Internal Server Error' });
+
+    const erro: unknown = await resultado.catch((e: unknown) => e);
+    expect(erro).toBeInstanceOf(HttpErrorResponse);
+    expect(erro).not.toBeInstanceOf(FalhaDeRedeError);
+    expect((erro as HttpErrorResponse).status).toBe(500);
   });
 });

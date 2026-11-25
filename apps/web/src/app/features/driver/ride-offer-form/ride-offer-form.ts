@@ -1,9 +1,10 @@
 import { KeyValuePipe } from '@angular/common';
-import { Component, computed, inject } from '@angular/core';
+import { Component, ErrorHandler, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NovaRideOffer, RideDirection } from '../../../core/models/ride-offer';
+import { FalhaDeRedeError } from '../../../core/services/auth.service';
 import { NeighborhoodService } from '../../../core/services/neighborhood.service';
 import { RideOfferService } from '../../../core/services/ride-offer.service';
 import { horarioFuturo } from './horario-futuro.validator';
@@ -16,6 +17,7 @@ import { horarioFuturo } from './horario-futuro.validator';
 export class RideOfferForm {
   private readonly rideOfferService = inject(RideOfferService);
   private readonly router = inject(Router);
+  private readonly errorHandler = inject(ErrorHandler);
 
   // TODO #35: bairros e pontos de exemplo do json-server, e não os 23 bairros reais da RN02.
   protected readonly neighborhoods = toSignal(inject(NeighborhoodService).listar(), {
@@ -60,6 +62,9 @@ export class RideOfferForm {
     maxlength: 'máximo 200 caracteres',
   };
 
+  // O servidor não respondeu ao publicar (CA11): o formulário fica como estava, com o aviso.
+  protected readonly falhaDeRede = signal(false);
+
   constructor() {
     this.form.controls.neighborhoodId.valueChanges
       .pipe(takeUntilDestroyed())
@@ -80,8 +85,18 @@ export class RideOfferForm {
       notes,
     };
 
-    this.rideOfferService.criar(nova).subscribe((oferta) => {
-      void this.router.navigate(['/ofertas', oferta.id], { queryParams: { publicada: 1 } });
+    this.falhaDeRede.set(false);
+    this.rideOfferService.criar(nova).subscribe({
+      next: (oferta) => {
+        void this.router.navigate(['/ofertas', oferta.id], { queryParams: { publicada: 1 } });
+      },
+      error: (erro: unknown) => {
+        if (erro instanceof FalhaDeRedeError) {
+          this.falhaDeRede.set(true);
+          return;
+        }
+        this.errorHandler.handleError(erro);
+      },
     });
   }
 }

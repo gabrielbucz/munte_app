@@ -1,12 +1,13 @@
-import { signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ErrorHandler, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter, withComponentInputBinding } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
-import { of } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
 import { routes } from '../../../app.routes';
 import { Neighborhood } from '../../../core/models/neighborhood';
 import { NovaRideOffer, RideOffer } from '../../../core/models/ride-offer';
-import { AuthService } from '../../../core/services/auth.service';
+import { AuthService, FalhaDeRedeError } from '../../../core/services/auth.service';
 import { NeighborhoodService } from '../../../core/services/neighborhood.service';
 import { RideOfferService } from '../../../core/services/ride-offer.service';
 import { RideOfferForm } from './ride-offer-form';
@@ -45,12 +46,15 @@ function ofertaCriada(nova: NovaRideOffer): RideOffer {
 }
 
 let criar: ReturnType<typeof vi.fn>;
+let handleError: ReturnType<typeof vi.fn>;
 
 function configurar(comSessao: boolean): void {
   criar = vi.fn((nova: NovaRideOffer) => of(ofertaCriada(nova)));
+  handleError = vi.fn();
   TestBed.configureTestingModule({
     providers: [
       provideRouter(routes, withComponentInputBinding()),
+      { provide: ErrorHandler, useValue: { handleError } },
       {
         provide: AuthService,
         useValue: {
@@ -475,5 +479,105 @@ describe('RideOfferForm: publicar a oferta (CA1, CA2)', () => {
     await preencherEPublicar('Espero 5 minutos');
 
     expect(TestBed.inject(Router).url).toBe('/ofertas/42?publicada=1');
+  });
+});
+
+describe('RideOfferForm: servidor sem resposta ao publicar (CA11)', () => {
+  const MENSAGEM_DE_FALHA =
+    'Não foi possível publicar a oferta. Verifique sua conexão e tente novamente.';
+  const HORARIO_DIGITADO = '2030-01-15T07:30';
+
+  function alertaDeFalha(raiz: HTMLElement): HTMLElement | undefined {
+    return Array.from(raiz.querySelectorAll<HTMLElement>('[role="alert"]')).find(
+      (alerta) => alerta.textContent?.trim() === MENSAGEM_DE_FALHA,
+    );
+  }
+
+  function botaoComTexto(raiz: HTMLElement, texto: string): HTMLButtonElement | undefined {
+    return Array.from(raiz.querySelectorAll('button')).find((b) => b.textContent?.trim() === texto);
+  }
+
+  async function clicar(harness: RouterTestingHarness, botao: HTMLButtonElement): Promise<void> {
+    botao.click();
+    harness.detectChanges();
+    await harness.fixture.whenStable();
+  }
+
+  // Preenche tudo (inclusive observações) e publica com o service falhando por falta de rede.
+  async function publicarSemRede(): Promise<{ harness: RouterTestingHarness; raiz: HTMLElement }> {
+    const { harness, raiz } = await abrirFormulario();
+    preencherTudoMenos(harness, raiz);
+    digitar(harness, campoPorRotulo<HTMLInputElement>(raiz, 'Horário'), HORARIO_DIGITADO);
+    digitar(harness, campoPorRotulo<HTMLTextAreaElement>(raiz, 'Observações'), 'Espero 5 minutos');
+    criar.mockReturnValueOnce(throwError(() => new FalhaDeRedeError()));
+
+    await clicar(harness, botaoPublicar(raiz));
+    return { harness, raiz };
+  }
+
+  it('mostra a mensagem de falha como alerta, fica no formulário e não vai ao ErrorHandler', async () => {
+    const { raiz } = await publicarSemRede();
+
+    expect(criar).toHaveBeenCalledTimes(1);
+    expect(alertaDeFalha(raiz)).toBeTruthy();
+    expect(TestBed.inject(Router).url).toBe('/ofertas/nova');
+    expect(handleError).not.toHaveBeenCalled();
+  });
+
+  it('o que foi preenchido continua no formulário', async () => {
+    const { raiz } = await publicarSemRede();
+
+    const ida = Array.from(
+      fieldsetSentido(raiz).querySelectorAll<HTMLInputElement>('input[type="radio"]'),
+    ).find((radio) => radio.closest('label')?.textContent?.trim() === 'Ida');
+    expect(ida?.checked).toBe(true);
+    expect(campoPorRotulo<HTMLSelectElement>(raiz, 'Bairro').value).toBe('1');
+    expect(campoPorRotulo<HTMLSelectElement>(raiz, 'Ponto').value).toBe('1');
+    expect(campoPorRotulo<HTMLInputElement>(raiz, 'Horário').value).toBe(HORARIO_DIGITADO);
+    expect(campoPorRotulo<HTMLInputElement>(raiz, 'Vagas').value).toBe('2');
+    expect(campoPorRotulo<HTMLTextAreaElement>(raiz, 'Observações').value).toBe('Espero 5 minutos');
+  });
+
+  it('o botão de envio passa a se chamar "Tentar novamente" e fica ligado', async () => {
+    const { raiz } = await publicarSemRede();
+
+    const tentarNovamente = botaoComTexto(raiz, 'Tentar novamente');
+    expect(tentarNovamente, 'botão "Tentar novamente"').toBeTruthy();
+    expect(tentarNovamente!.type).toBe('submit');
+    expect(tentarNovamente!.disabled).toBe(false);
+    expect(botaoComTexto(raiz, 'Publicar')).toBeUndefined();
+  });
+
+  it('"Tentar novamente" reenvia os mesmos dados sem redigitar e, com sucesso, leva a /ofertas/<id>?publicada=1', async () => {
+    const { harness, raiz } = await publicarSemRede();
+    const primeiroEnvio: unknown = criar.mock.calls[0][0];
+
+    await clicar(harness, botaoComTexto(raiz, 'Tentar novamente')!);
+
+    expect(criar).toHaveBeenCalledTimes(2);
+    expect(criar.mock.calls[1][0]).toStrictEqual(primeiroEnvio);
+    expect(TestBed.inject(Router).url).toBe('/ofertas/42?publicada=1');
+  });
+
+  it('ao reenviar, a mensagem de falha some enquanto o servidor não responde', async () => {
+    const { harness, raiz } = await publicarSemRede();
+    criar.mockReturnValueOnce(new Subject<RideOffer>());
+
+    await clicar(harness, botaoComTexto(raiz, 'Tentar novamente')!);
+
+    expect(alertaDeFalha(raiz)).toBeUndefined();
+  });
+
+  it('erro que não é de rede (ex.: 500) não mostra a mensagem de falha e é repassado ao ErrorHandler', async () => {
+    const { harness, raiz } = await abrirFormulario();
+    preencherTudoMenos(harness, raiz);
+    const erroDoServidor = new HttpErrorResponse({ status: 500 });
+    criar.mockReturnValueOnce(throwError(() => erroDoServidor));
+
+    await clicar(harness, botaoPublicar(raiz));
+
+    expect(alertaDeFalha(raiz)).toBeUndefined();
+    expect(handleError).toHaveBeenCalledWith(erroDoServidor);
+    expect(TestBed.inject(Router).url).toBe('/ofertas/nova');
   });
 });
