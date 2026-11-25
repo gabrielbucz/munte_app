@@ -65,8 +65,9 @@ Organização interna — apps/web/src/app/
 apps/web/src/app/
 ├── core/                              # ProvidedIn: 'root' — singleton app-wide
 │   ├── services/                      # Data Services (RideService, AuthService, NotificationService)
-│   ├── guards/                        # Functional Route Guards (authGuard, roleGuard)
+│   ├── guards/                        # Functional Route Guards (authGuard, confirmarDescarteGuard)
 │   ├── interceptors/                  # Functional HTTP Interceptors (authInterceptor, errorInterceptor)
+│   ├── config/                        # Constantes de configuração (API_URL, PONTO_NA_FACULDADE)
 │   └── models/                        # Interfaces/Types compartilhados (User, RideOffer, RideRequest, Notification, etc.)
 ├── shared/                            # Componentes burros (dumb), Pipes, Diretivas
 │   ├── components/                    # Button, Card, Input, Modal, Toast, Spinner, Badge...
@@ -92,7 +93,7 @@ Veículo	Vehicle	id, driverId, plate, model, color, seats, isActive
 Ida / Volta	RideDirection	enum: 'outbound' | 'return'
 Ponto de referência	PickupPoint	id, neighborhoodId, label, lat?, lng?, order
 Bairro	Neighborhood	id, name (23 fixos), pickupPoints: PickupPoint[] (3 cada)
-Oferta de carona	RideOffer	id, driverId, vehicleId, direction, neighborhoodId, pickupPointId, departureTime, totalSeats, availableSeats, status: 'draft' | 'available' | 'full' | 'cancelled' | 'completed', notes?, createdAt
+Oferta de carona	RideOffer	id, driverId, vehicleId (entra com a US14; a US01 grava sem ele), direction, neighborhoodId, pickupPointId, departureTime, totalSeats, availableSeats, status: 'draft' | 'available' | 'full' | 'cancelled' | 'completed', notes ('' quando vazio), createdAt
 Solicitação	RideRequest	id, rideOfferId, passengerId, direction, status: 'pending' | 'accepted' | 'rejected' | 'cancelled_by_passenger' | 'cancelled_by_driver', requestedAt, respondedAt?
 Match / Aceite	(estado de RideRequest)	status === 'accepted'
 Cancelamento	(estado de RideRequest / RideOffer)	status === 'cancelled_by_*' + cancelledAt, cancelledBy
@@ -127,7 +128,7 @@ erDiagram
     RIDE_OFFER {
         string id PK
         string driverId FK
-        string vehicleId FK
+        string vehicleId FK "entra com a US14"
         string direction
         string neighborhoodId FK
         string pickupPointId FK
@@ -196,12 +197,12 @@ ID15	Services com inject() — comunicação entre componentes não-hierárquico
 ID16	Roteamento funcional provideRouter() + withComponentInputBinding() — rotas em app.routes.ts: export const routes: Routes = [...]; bootstrap: provideRouter(routes, withComponentInputBinding()). Parâmetros da URL viram input() no componente destino.
 ID17	Consumo de parâmetros via input() — no componente: rideId = input.required<string>(); — o router popula automaticamente via withComponentInputBinding().
 ID18	Rotas aninhadas (child routes) — layout shell com <router-outlet> pai + features lazy: path: 'driver', loadChildren: () => import('./features/driver/driver.routes').then(m => m.DRIVER_ROUTES).
-ID19	Functional Guards + Resolvers — authGuard: CanActivateFn = () => inject(AuthService).autenticado() ? true : inject(Router).createUrlTree(['/entrar']); — ligado na rota com canActivate: [authGuard]. Resolver: rideResolver = () => inject(RideService).getById(inject(ActivatedRoute).snapshot.params['id']);.
+ID19	Functional Guards + Resolvers — authGuard: CanActivateFn = () => inject(AuthService).autenticado() ? true : inject(Router).createUrlTree(['/entrar']); — ligado na rota com canActivate: [authGuard]. Guard de saída: confirmarDescarteGuard: CanDeactivateFn<PodeSair> = (tela) => tela.podeSair() || window.confirm(...) — ligado com canDeactivate: [confirmarDescarteGuard]; PodeSair mora em core/guards/ para o guard não importar features/. Resolver: rideResolver = () => inject(RideService).getById(inject(ActivatedRoute).snapshot.params['id']);.
 ID20	Requisições GET assíncronas — Services usam HttpClient + toSignal() / toObservable(): getOffers = () => this.http.get<RideOffer[]>('/rides').pipe(toSignal());
 ID21	Auth JWT com BaaS (Supabase) — AuthService encapsula supabase.auth: signInWithOtp({ email }) com link de confirmação, getSession(), onAuthStateChange(). Somente e-mails institucionais @alunos.utfpr.edu.br (PRD 1.3.0). Token no interceptor.
 ID22	CRUD completo no BaaS — Services expõem create(), update(), delete(), getById(), list() mapeando para Supabase from('table').select/insert/update/delete.
 ID23	Functional Interceptors — authInterceptor = (req, next) => { const token = inject(AuthService).accessToken(); return next(req.clone({ setHeaders: { Authorization: Bearer ${token}` } })); }`; errorInterceptor centraliza toast + log + retry policy.
-ID24	Formulários Reativos + Validação — FormBuilder + Validators + model() binding. Botão submit: [disabled]="form.invalid | form.pristine". Mensagens de erro via @if (control.invalid && control.touched) { @for (err of control.errors | keyvalue; track err.key) { {{ errorMessages[err.key] }} } }
+ID24	Formulários Reativos + Validação — FormBuilder + Validators + model() binding. Botão submit: [disabled]="form.invalid || enviando()" (enviando é o signal do envio em andamento; a mensagem só aparece depois de tocar, por isso o formulário intocado não precisa de form.pristine). Mensagens de erro via @if (control.invalid && control.touched) { @for (err of control.errors | keyvalue; track err.key) { {{ errorMessages[err.key] }} } }
 ID25	toSignal() / toObservable() — ponte RxJS ↔ Signals: offersSignal = toSignal(this.http.get<Offer[]>('/offers'), { initialValue: [] }); — obs$ = toObservable(someSignal);
 ID26	Gitflow — branches main (produção) e develop (integração). Features em feature/* a partir de develop, PR para develop. Release/hotfix conforme Gitflow padrão.
 ID28	Build + Deploy — ng build --configuration production → output em dist/apps/web. Deploy automático Vercel/Render conectado à main. Variáveis de ambiente (Supabase keys) no painel do provedor.
@@ -210,7 +211,7 @@ ID29–ID33	IA-Assisted SDD — Issues no GitHub Projects (Kanban). PRD → Arch
 
 8. Contrato dos Dados
 Fase	Onde Mora	Formato
-MVP (Entrega 2)	apps/api/db.json	JSON estruturado espelhando o ER acima (arrays por entidade: users, vehicles, rideOffers, rideRequests, neighborhoods, pickupPoints, notifications, magicLinks). A sessão do aluno fica no localStorage (chave munte.sessao, { email }) até a Entrega 3 (#25)
+MVP (Entrega 2)	apps/api/db.json	JSON estruturado espelhando o ER acima (arrays por entidade: users, vehicles, rideOffers, rideRequests, neighborhoods, pickupPoints, notifications, magicLinks). A sessão do aluno fica no localStorage (chave munte.sessao, { email }) até a Entrega 3 (#25). rideOffers nasce vazia (o json-server só cria a rota para chaves existentes); neighborhoods e pickupPoints têm dados de exemplo até a #35
 Entrega 3	Supabase (Postgres)	Tabelas relacionais com FKs, RLS (Row Level Security) por user_id, triggers para availableSeats decrement, Realtime subscriptions em ride_requests e notifications
 
 
@@ -228,6 +229,7 @@ Data	Versão	O que mudou
 2026-11-19	1.1.0	Substituição do Bootstrap 5 por Tailwind CSS v4; correção da formatação Markdown e explicitação da integração com Angular
 2026-11-20	1.1.1	Remoção do campo role de User (glossário e diagrama ER), pois o PRD 1.3.0 restringe o app a alunos de graduação
 2026-11-22	1.2.0	US12 (#8): coleção magicLinks (glossário, ER e Seção 8), pasta features/inicio/ (Seção 4); ID21 passa a @alunos.utfpr.edu.br; ID19 corrigido para canActivate (withGuards não existe na API do Angular)
+2026-11-25	1.3.0	US01 (#3): RideOffer sem vehicleId até a US14 e notes '' quando vazio (glossário); pasta core/config/ e confirmarDescarteGuard (Seção 4, ID19); ID24 alinhado ao botão [disabled]="form.invalid || enviando()"; rideOffers vazia e bairros de exemplo (#35) na Seção 8
 
 
 Próximo passo: /utf-setup — o aluno lê fora do chat; o commit é dele.

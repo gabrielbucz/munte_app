@@ -54,18 +54,18 @@ Sem administrador neste PRD — administração vai para Fora de Escopo (US10 `C
 
 Todas nascem `Draft` — **só o aluno promove a `Ready`**.
 
-### US01 — motorista cadastra oferta · `Must Have` · `M` · Status: `Ready`
+### US01 — motorista cadastra oferta · `Must Have` · `M` · Status: `Live`
 
 **Como** motorista da comunidade UTFPR, **eu quero** cadastrar uma oferta de carona voluntária especificando itinerário, horário e vagas disponíveis **para que** eu possa disponibilizar assentos livres e organizar os passageiros de forma centralizada e sem custos.
 
 **Critérios de aceite:**
 
-- [ ] **Dado** que informei trajeto (só ida ou só volta), ponto, horário futuro e vagas ≥1, **quando** confirmo a publicação, **então** a oferta fica "Disponível" com confirmação e entra nas minhas ativas.
-- [ ] **Dado** que informei ponto dos fixos + observações (ex.: tolerância), **quando** publico, **então** ficam salvos e visíveis nos detalhes.
-- [ ] **Dado** vagas 0/negativa, **quando** tento publicar, **então** bloqueia com "mínimo 1 vaga".
-- [ ] **Dado** horário ou ponto vazio, **quando** tento publicar, **então** destaca "preenchimento obrigatório" e bloqueia.
-- [ ] **Dado** horário no passado, **quando** tento publicar, **então** recusa com "precisa ser no futuro".
-- [ ] **Dado** cadastro parcial, **quando** desisto e confirmo descarte, **então** nada é registrado.
+- [x] **Dado** que informei trajeto (só ida ou só volta), ponto, horário futuro e vagas ≥1, **quando** confirmo a publicação, **então** a oferta fica "Disponível" com confirmação e entra nas minhas ativas.
+- [x] **Dado** que informei ponto dos fixos + observações (ex.: tolerância), **quando** publico, **então** ficam salvos e visíveis nos detalhes.
+- [x] **Dado** vagas 0/negativa, **quando** tento publicar, **então** bloqueia com "mínimo 1 vaga".
+- [x] **Dado** horário ou ponto vazio, **quando** tento publicar, **então** destaca "preenchimento obrigatório" e bloqueia.
+- [x] **Dado** horário no passado, **quando** tento publicar, **então** recusa com "precisa ser no futuro".
+- [x] **Dado** cadastro parcial, **quando** desisto e confirmo descarte, **então** nada é registrado.
 
 **Regras relacionadas:** RN01, RN02, RN03, RN10, RN11
 
@@ -269,6 +269,7 @@ Detalhe de implementação (Service Workers, tempos, canais) fica para o `archit
 | 2026-11-20 | 1.3.0 | Escopo restrito a alunos de graduação: servidores e pós-graduação vão para Fora de Escopo; domínio aceito passa a ser @alunos.utfpr.edu.br (US12, CA1); CA2 deixa de identificar perfil aluno/servidor. |
 | 2026-11-22 | 1.3.1 | US12 implementada (Issue #8): status `Done` e critérios de aceite marcados. |
 | 2026-11-23 | 1.4.0 | Divisão da US01 (#33): US01 fica com a oferta de um trecho (ponto, horário futuro, vagas, observações, descarte); ida e volta, "Repetir oferta habitual", pré-preenchimento por turno e bloqueio sem veículo vão para a nova US14 (`Draft`). RN03 passa a US01 e US14; RN15 passa à US14. US12 corrigida de `Done` para `Live`. |
+| 2026-11-25 | 1.4.1 | US01 implementada (Issue #3): status `Live` e critérios de aceite marcados. |
 
 ---
 
