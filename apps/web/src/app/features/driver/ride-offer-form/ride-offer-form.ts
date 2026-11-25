@@ -2,7 +2,10 @@ import { KeyValuePipe } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { NovaRideOffer, RideDirection } from '../../../core/models/ride-offer';
 import { NeighborhoodService } from '../../../core/services/neighborhood.service';
+import { RideOfferService } from '../../../core/services/ride-offer.service';
 import { horarioFuturo } from './horario-futuro.validator';
 
 @Component({
@@ -11,13 +14,16 @@ import { horarioFuturo } from './horario-futuro.validator';
   templateUrl: './ride-offer-form.html',
 })
 export class RideOfferForm {
+  private readonly rideOfferService = inject(RideOfferService);
+  private readonly router = inject(Router);
+
   // TODO #35: bairros e pontos de exemplo do json-server, e não os 23 bairros reais da RN02.
   protected readonly neighborhoods = toSignal(inject(NeighborhoodService).listar(), {
     initialValue: [],
   });
 
   protected readonly form = new FormGroup({
-    direction: new FormControl<'outbound' | 'return' | ''>('', {
+    direction: new FormControl<RideDirection | ''>('', {
       nonNullable: true,
       validators: Validators.required,
     }),
@@ -58,5 +64,24 @@ export class RideOfferForm {
     this.form.controls.neighborhoodId.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.form.controls.pickupPointId.reset(''));
+  }
+
+  // "Publicar" só liga com o formulário válido (CA9): aqui o sentido e as vagas já estão preenchidos.
+  protected publicar(): void {
+    const { direction, neighborhoodId, pickupPointId, departureTime, seats, notes } =
+      this.form.getRawValue();
+    const nova: NovaRideOffer = {
+      direction: direction as RideDirection,
+      neighborhoodId,
+      pickupPointId,
+      // O datetime-local entrega "AAAA-MM-DDTHH:mm" em hora local; new Date lê assim e o ISO sai em UTC.
+      departureTime: new Date(departureTime).toISOString(),
+      totalSeats: seats as number,
+      notes,
+    };
+
+    this.rideOfferService.criar(nova).subscribe((oferta) => {
+      void this.router.navigate(['/ofertas', oferta.id], { queryParams: { publicada: 1 } });
+    });
   }
 }

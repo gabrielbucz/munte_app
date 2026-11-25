@@ -2,11 +2,28 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, catchError, of, throwError } from 'rxjs';
 import { API_URL } from '../config/api.config';
-import { RideOfferDetalhada } from '../models/ride-offer';
+import { NovaRideOffer, RideOffer, RideOfferDetalhada } from '../models/ride-offer';
+import { AuthService } from './auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class RideOfferService {
   private readonly http = inject(HttpClient);
+  private readonly authService = inject(AuthService);
+
+  // A oferta nasce "Disponível", com todas as vagas livres, no nome do motorista da sessão.
+  // O id vem do json-server na resposta.
+  criar(nova: NovaRideOffer): Observable<RideOffer> {
+    const oferta: Omit<RideOffer, 'id'> = {
+      // TODO #25: o motorista é o e-mail da sessão simulada, e não um usuário do Supabase Auth.
+      // A rota do formulário tem o authGuard: sem sessão não se chega aqui.
+      driverId: this.authService.sessao()!.email,
+      ...nova,
+      availableSeats: nova.totalSeats,
+      status: 'available',
+      createdAt: new Date().toISOString(),
+    };
+    return this.http.post<RideOffer>(`${API_URL}/rideOffers`, oferta);
+  }
 
   // A oferta já com o bairro e o ponto (o _expand do json-server 0.17 junta pelo
   // neighborhoodId e pelo pickupPointId). Oferta inexistente (404) vira null.

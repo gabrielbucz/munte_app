@@ -5,8 +5,10 @@ import { RouterTestingHarness } from '@angular/router/testing';
 import { of } from 'rxjs';
 import { routes } from '../../../app.routes';
 import { Neighborhood } from '../../../core/models/neighborhood';
+import { NovaRideOffer, RideOffer } from '../../../core/models/ride-offer';
 import { AuthService } from '../../../core/services/auth.service';
 import { NeighborhoodService } from '../../../core/services/neighborhood.service';
+import { RideOfferService } from '../../../core/services/ride-offer.service';
 import { RideOfferForm } from './ride-offer-form';
 
 const BAIRROS: Neighborhood[] = [
@@ -30,7 +32,22 @@ const BAIRROS: Neighborhood[] = [
   },
 ];
 
+// O service devolve a oferta como o json-server a grava, com o id que ele deu.
+function ofertaCriada(nova: NovaRideOffer): RideOffer {
+  return {
+    id: '42',
+    driverId: 'fulano@alunos.utfpr.edu.br',
+    availableSeats: nova.totalSeats,
+    status: 'available',
+    createdAt: new Date().toISOString(),
+    ...nova,
+  };
+}
+
+let criar: ReturnType<typeof vi.fn>;
+
 function configurar(comSessao: boolean): void {
+  criar = vi.fn((nova: NovaRideOffer) => of(ofertaCriada(nova)));
   TestBed.configureTestingModule({
     providers: [
       provideRouter(routes, withComponentInputBinding()),
@@ -42,6 +59,8 @@ function configurar(comSessao: boolean): void {
         },
       },
       { provide: NeighborhoodService, useValue: { listar: () => of(BAIRROS) } },
+      // buscarPorId: a tela /ofertas/<id>, para onde o formulário leva depois de publicar.
+      { provide: RideOfferService, useValue: { criar, buscarPorId: () => of(null) } },
     ],
   });
 }
@@ -400,5 +419,61 @@ describe('RideOfferForm: observações com no máximo 200 caracteres (CA8, CA9)'
     expect(mensagemDoCampo(raiz, observacoes)).toBe('máximo 200 caracteres');
     expect(raiz.querySelectorAll('[role="alert"]')).toHaveLength(1);
     expect(botaoPublicar(raiz).disabled).toBe(true);
+  });
+});
+
+describe('RideOfferForm: publicar a oferta (CA1, CA2)', () => {
+  function escolherSentido(harness: RouterTestingHarness, raiz: HTMLElement, texto: string): void {
+    const radio = Array.from(
+      fieldsetSentido(raiz).querySelectorAll<HTMLInputElement>('input[type="radio"]'),
+    ).find((r) => r.closest('label')?.textContent?.trim() === texto);
+    expect(radio, `opção "${texto}"`).toBeTruthy();
+    radio!.click();
+    harness.detectChanges();
+  }
+
+  // O texto que o motorista digita no datetime-local é hora local, sem fuso. O ISO esperado sai
+  // do mesmo instante montado em hora local, então o teste vale em qualquer fuso da máquina.
+  const HORARIO_DIGITADO = '2030-01-15T07:30';
+  const HORARIO_EM_ISO = new Date(2030, 0, 15, 7, 30).toISOString();
+
+  async function preencherEPublicar(observacoes: string): Promise<void> {
+    const { harness, raiz } = await abrirFormulario();
+    escolherSentido(harness, raiz, 'Volta');
+    escolher(harness, campoPorRotulo<HTMLSelectElement>(raiz, 'Bairro'), 'Vila Nova');
+    escolher(harness, campoPorRotulo<HTMLSelectElement>(raiz, 'Ponto'), 'Posto de saúde');
+    digitar(harness, campoPorRotulo<HTMLInputElement>(raiz, 'Horário'), HORARIO_DIGITADO);
+    digitar(harness, campoPorRotulo<HTMLInputElement>(raiz, 'Vagas'), '3');
+    digitar(harness, campoPorRotulo<HTMLTextAreaElement>(raiz, 'Observações'), observacoes);
+    expect(botaoPublicar(raiz).disabled, '"Publicar" antes do clique').toBe(false);
+
+    botaoPublicar(raiz).click();
+    await harness.fixture.whenStable();
+  }
+
+  it('CA1/CA2: publicar um formulário válido envia os dados digitados, com o horário em ISO', async () => {
+    await preencherEPublicar('Espero 5 minutos');
+
+    expect(criar).toHaveBeenCalledTimes(1);
+    expect(criar).toHaveBeenCalledWith({
+      direction: 'return',
+      neighborhoodId: '2',
+      pickupPointId: '5',
+      departureTime: HORARIO_EM_ISO,
+      totalSeats: 3,
+      notes: 'Espero 5 minutos',
+    } satisfies NovaRideOffer);
+  });
+
+  it('CA2: observações vazias são enviadas como texto vazio', async () => {
+    await preencherEPublicar('');
+
+    expect(criar).toHaveBeenCalledWith(expect.objectContaining({ notes: '' }));
+  });
+
+  it('CA1: depois de publicar, leva o motorista a /ofertas/<id>?publicada=1 com o id da oferta criada', async () => {
+    await preencherEPublicar('Espero 5 minutos');
+
+    expect(TestBed.inject(Router).url).toBe('/ofertas/42?publicada=1');
   });
 });

@@ -19,6 +19,13 @@ export interface RideOffer {
   createdAt: string;
 }
 
+// O que o formulário entrega para publicar: o RideOfferService completa motorista, status,
+// vagas disponíveis e createdAt. departureTime já vem em ISO.
+export type NovaRideOffer = Pick<
+  RideOffer,
+  'direction' | 'neighborhoodId' | 'pickupPointId' | 'departureTime' | 'totalSeats' | 'notes'
+>;
+
 // A oferta como volta do _expand do json-server: o bairro vem sem a lista de pontos.
 export interface RideOfferDetalhada extends RideOffer {
   neighborhood: Omit<Neighborhood, 'pickupPoints'>;

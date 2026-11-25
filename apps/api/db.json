@@ -15,5 +15,6 @@
     { "id": "7", "neighborhoodId": "3", "label": "Praça do Jardim América", "order": 1 },
     { "id": "8", "neighborhoodId": "3", "label": "Ginásio de esportes", "order": 2 },
     { "id": "9", "neighborhoodId": "3", "label": "Ponto final do ônibus", "order": 3 }
-  ]
+  ],
+  "rideOffers": []
 }

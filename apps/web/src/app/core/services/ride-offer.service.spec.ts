@@ -1,9 +1,11 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { firstValueFrom } from 'rxjs';
 import { API_URL } from '../config/api.config';
-import { RideOfferDetalhada } from '../models/ride-offer';
+import { NovaRideOffer, RideOffer, RideOfferDetalhada } from '../models/ride-offer';
+import { AuthService } from './auth.service';
 import { RideOfferService } from './ride-offer.service';
 
 const OFERTA: RideOfferDetalhada = {
@@ -67,5 +69,69 @@ describe('RideOfferService.buscarPorId', () => {
       .flush({}, { status: 500, statusText: 'Server Error' });
 
     await expect(resultado).rejects.toMatchObject({ status: 500 });
+  });
+});
+
+describe('RideOfferService.criar', () => {
+  // Relógio parado: o createdAt é o instante da publicação.
+  const agora = new Date('2026-11-24T15:45:10.123Z');
+
+  const NOVA: NovaRideOffer = {
+    direction: 'return',
+    neighborhoodId: '2',
+    pickupPointId: '5',
+    departureTime: '2026-12-01T21:00:00.000Z',
+    totalSeats: 3,
+    notes: 'Espero 5 minutos',
+  };
+
+  let service: RideOfferService;
+  let http: HttpTestingController;
+
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(agora);
+    TestBed.configureTestingModule({
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        {
+          provide: AuthService,
+          useValue: { sessao: signal({ email: 'motorista@alunos.utfpr.edu.br' }) },
+        },
+      ],
+    });
+    service = TestBed.inject(RideOfferService);
+    http = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => {
+    http.verify();
+    vi.useRealTimers();
+  });
+
+  it('CA1/CA2: faz POST /rideOffers com o motorista da sessão, "Disponível", vagas disponíveis = vagas, as observações e createdAt', async () => {
+    const resultado = firstValueFrom(service.criar(NOVA));
+
+    const req = http.expectOne(`${API_URL}/rideOffers`);
+    expect(req.request.method).toBe('POST');
+    // Sem id: quem dá o id é o json-server.
+    expect(req.request.body).toStrictEqual({
+      driverId: 'motorista@alunos.utfpr.edu.br',
+      direction: 'return',
+      neighborhoodId: '2',
+      pickupPointId: '5',
+      departureTime: '2026-12-01T21:00:00.000Z',
+      totalSeats: 3,
+      availableSeats: 3,
+      status: 'available',
+      notes: 'Espero 5 minutos',
+      createdAt: '2026-11-24T15:45:10.123Z',
+    });
+
+    const criada: RideOffer = { id: '42', ...req.request.body };
+    req.flush(criada);
+
+    expect(await resultado).toEqual(criada);
   });
 });

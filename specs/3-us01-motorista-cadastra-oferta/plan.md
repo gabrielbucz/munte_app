@@ -79,7 +79,7 @@
   - Teste primeiro: `ride-offer.service.spec.ts` prova o `GET /rideOffers/:id` com `_expand` e que 404 vira `null`; `ride-offer-detail.spec.ts` prova, com as rotas reais, que `/ofertas/<id>` mostra sentido, bairro, ponto, horário formatado, vagas e observações, que o aviso "Oferta publicada." só aparece com `publicada`, e que um id desconhecido mostra "Oferta não encontrada." com link para `/inicio`. Falha antes porque o service, a rota e o componente não existem.
   - Arquivos previstos: `core/models/ride-offer.ts`, `core/config/api.config.ts`, `core/services/ride-offer.service.{ts,spec.ts}`, `features/driver/ride-offer-detail/ride-offer-detail.{ts,html,spec.ts}`, `app.routes.ts`
 
-- [ ] **Tarefa 7 — publicar a oferta e levar o motorista aos detalhes**
+- [x] **Tarefa 7 — publicar a oferta e levar o motorista aos detalhes**
   - Cobre: CA1, CA2 (ficam salvos)
   - Teste primeiro: `ride-offer.service.spec.ts` prova que `criar` faz `POST /rideOffers` com o motorista da sessão, `status: 'available'`, `availableSeats` igual a `totalSeats`, as observações e `createdAt`; `ride-offer-form.spec.ts` prova que publicar um formulário válido chama o service com os dados digitados e navega para `/ofertas/<id>?publicada=1`. Falha antes porque não há `criar` nem envio.
   - Arquivos previstos: `apps/api/db.json` (a coleção `rideOffers: []`, para o `POST /rideOffers` do json-server existir), `core/models/ride-offer.ts` (o tipo `NovaRideOffer`, que só a Tarefa 7 usa), `core/services/ride-offer.service.{ts,spec.ts}`, `features/driver/ride-offer-form/ride-offer-form.{ts,html,spec.ts}`
