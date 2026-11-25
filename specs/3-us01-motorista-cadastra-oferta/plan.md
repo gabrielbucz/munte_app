@@ -74,7 +74,7 @@
   - Teste primeiro: `horario-futuro.validator.spec.ts` (com relógio simulado) prova que um instante depois de agora passa e que agora e o passado são recusados; `ride-offer-form.spec.ts` prova a mensagem "precisa ser no futuro" e, para observações, que 200 caracteres passam e 201 mostram "máximo 200 caracteres". Falha antes porque não há validador de horário nem limite de tamanho.
   - Arquivos previstos: `features/driver/ride-offer-form/horario-futuro.validator.{ts,spec.ts}`, `features/driver/ride-offer-form/ride-offer-form.{ts,html,spec.ts}`
 
-- [ ] **Tarefa 6 — mostrar a oferta pelo endereço `/ofertas/<id>`**
+- [x] **Tarefa 6 — mostrar a oferta pelo endereço `/ofertas/<id>`**
   - Cobre: CA2 (visíveis nos detalhes), CA14
   - Teste primeiro: `ride-offer.service.spec.ts` prova o `GET /rideOffers/:id` com `_expand` e que 404 vira `null`; `ride-offer-detail.spec.ts` prova, com as rotas reais, que `/ofertas/<id>` mostra sentido, bairro, ponto, horário formatado, vagas e observações, que o aviso "Oferta publicada." só aparece com `publicada`, e que um id desconhecido mostra "Oferta não encontrada." com link para `/inicio`. Falha antes porque o service, a rota e o componente não existem.
   - Arquivos previstos: `core/models/ride-offer.ts`, `core/config/api.config.ts`, `core/services/ride-offer.service.{ts,spec.ts}`, `features/driver/ride-offer-detail/ride-offer-detail.{ts,html,spec.ts}`, `app.routes.ts`
